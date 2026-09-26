@@ -6,16 +6,20 @@
 
 ## Status
 
-Planning complete — implementation of Lab 1 (Java SE test catalog) is about to start. Live status: [docs/en/STATE.md](docs/en/STATE.md).
+Lab 1 complete — a working console test catalog (Java SE, Maven, Lombok). Live status: [docs/en/STATE.md](docs/en/STATE.md).
 
 ## Quick start
 
-No runnable code yet. This section always shows the single command that starts the project as it evolves (one-command rule — see conventions).
+```bash
+cd catalog && ./mvnw compile && java -cp target/classes com.medata.catalog.Main
+```
+
+Eventually this section will converge to a single `docker compose up` (one-command rule — see conventions).
 
 ## Requirements
 
-- JDK 25 or newer (developed on OpenJDK 26; a Maven Wrapper will be added with Lab 1)
-- Apache Maven 3.9+ (until the wrapper lands)
+- JDK 25 or newer (developed on OpenJDK 26)
+- Maven not required — the repo ships a Maven Wrapper (`catalog/mvnw`)
 
 ## Documentation
 
@@ -26,3 +30,4 @@ Bilingual EN/PL, 1:1 structure — [docs/en](docs/en) / [docs/pl](docs/pl):
 - [Decisions](docs/en/DECISIONS.md) — why it is the way it is
 - [State](docs/en/STATE.md) — where the project currently stands
 - [Changelog](docs/en/CHANGELOG.md) — milestone history
+- [Lab 1 cheat sheet](docs/en/labs/lab-1.md) — presentation prep

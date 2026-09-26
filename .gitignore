@@ -11,3 +11,6 @@ target/
 
 # Local environment (never commit secrets)
 .env
+
+# Runtime artifacts
+*.bin

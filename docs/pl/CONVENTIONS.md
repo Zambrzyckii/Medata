@@ -5,6 +5,7 @@
 ## 1. Rytm pracy i commity
 
 - Repozytorium git prowadzi wyłącznie użytkownik: agent nie wykonuje `git commit`, `git checkout -b`, `git merge` ani `git push` — proponuje gotowe komendy i treści commitów. Odczyt (`status`, `diff`, `log`) jest dozwolony swobodnie.
+- **Kod źródłowy pisze wyłącznie użytkownik, własnoręcznie.** Agent nie tworzy ani nie edytuje plików z kodem/konfiguracją — pokazuje kod na czacie (partiami po jednym pliku, z wyjaśnieniami; użytkownik uczy się Javy przychodząc z .NET). Wyjątek: dokumentacja (`docs/`, README, CLAUDE.md) — tę agent edytuje bezpośrednio w ramach stałego obowiązku jej pielęgnacji.
 - **Commit dokładnie w momencie ukończenia labu.** Gdy wszystkie zadania labu N działają, agent przechodzi checklistę granicy labu (sekcja 8) i wyraźnie sygnalizuje: **„LAB N UKOŃCZONY — czas na commit"**, podając proponowaną komendę, treść commita oraz tag `lab-N`. Dzięki temu każdy etap można pokazać prowadzącemu osobno (checkout tagu), zamiast od razu gotowego produktu z labu 7.
 - Poza granicami labów commity powstają w naturalnych punktach (spójna, działająca zmiana) — agent proponuje moment i treść.
 - Treść commitów: **Conventional Commits** po angielsku (`feat:`, `fix:`, `docs:`, `refactor:`, `chore:`, `test:`), tryb rozkazujący, opcjonalny zakres — np. `feat(catalog): add LabTest entity with builder`.

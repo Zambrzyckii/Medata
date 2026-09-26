@@ -5,21 +5,20 @@
 
 ## Faza
 
-Planowanie zakończone. **Kod jeszcze nie istnieje.** Repozytorium git niezainicjalizowane — zrobi to użytkownik przy starcie Labu 1.
+**Lab 1 UKOŃCZONY** — komplet zadań 1–7 (8/8 pkt) zweryfikowany uruchomieniem i `./mvnw verify`. Oczekuje na commit użytkownika z tagiem `lab-1`.
 
 ## Co istnieje
 
-- `docs/pl/` i `docs/en/`: VISION, CONVENTIONS, DECISIONS, STATE, CHANGELOG (układ 1:1)
-- Root `CLAUDE.md`
-- Root `README.md` (EN) i `README.pl.md` oraz `.editorconfig`
+- `catalog/` — ukończona aplikacja konsolowa labu 1 (Maven, Java 25, Lombok, Spotless, wrapper `mvnw`): pakiet `model` (`TestCategory`, `LabTest`, helper `addLabTest`), pakiet `dto` (rekord `LabTestDto`), `Main` z zadaniami 2–7 (dane przykładowe, wydruk `forEach`, trzy pipeline'y Stream API, serializacja do `categories.bin`, równoległość na własnym `ForkJoinPool` z pomiarem czasu)
+- `docs/pl|en/`: VISION, CONVENTIONS, DECISIONS, STATE, CHANGELOG oraz ściąga do prezentacji `labs/lab-1.md`
+- Root: `CLAUDE.md`, `README.md`/`README.pl.md`, `.editorconfig`, `.gitignore`
 - Instrukcje labów (PDF) w katalogu nadrzędnym `/home/bob/Mikro`
 
 ## Środowisko deweloperskie
 
-- OpenJDK 26.0.2 zainstalowane
-- **Maven brak — bloker Labu 1** (propozycja: `sudo pacman -S maven`, potem Maven Wrapper w repo)
-- Gradle brak (niepotrzebny — laby wymagają Mavena)
+- OpenJDK 26.0.2 (kompilacja `--release 25` — LTS), Maven 3.9.16 + wrapper w repo
+- Git: gałąź `main`, commit fundamentu dokumentacji wykonany; kod pisze wyłącznie użytkownik ręcznie (agent pokazuje go na czacie)
 
 ## Następny krok
 
-Lab 1 (sekcja CORE wizji): katalog badań jako aplikacja konsolowa Java SE — `pom.xml` → encje → DTO → dane startowe → pipeline'y Stream API → serializacja → ForkJoinPool.
+Commit + tag `lab-1` (wykonuje użytkownik; opcjonalnie publikacja repo na GitHubie przez `gh repo create`). Potem **Lab 2**: Spring Boot + Spring Data JPA (H2 in-memory) — encje JPA, repozytoria, serwisy, konsolowy runner CRUD; konwencje aktywowane w labie 2: `ARCHITECTURE.md` z diagramami Mermaid, pierwsze ADR-y, CI (GitHub Actions).

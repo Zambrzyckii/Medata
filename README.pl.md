@@ -6,16 +6,20 @@
 
 ## Status
 
-Planowanie zakończone — implementacja Labu 1 (katalog badań, Java SE) tuż przed startem. Bieżący status: [docs/pl/STATE.md](docs/pl/STATE.md).
+Lab 1 ukończony — działający konsolowy katalog badań (Java SE, Maven, Lombok). Bieżący status: [docs/pl/STATE.md](docs/pl/STATE.md).
 
 ## Szybki start
 
-Kod jeszcze nie istnieje. Ta sekcja zawsze pokazuje jedną komendę uruchamiającą projekt w miarę jego rozwoju (zasada jednej komendy — patrz konwencje).
+```bash
+cd catalog && ./mvnw compile && java -cp target/classes com.medata.catalog.Main
+```
+
+Docelowo ta sekcja zbiegnie do pojedynczego `docker compose up` (zasada jednej komendy — patrz konwencje).
 
 ## Wymagania
 
-- JDK 25 lub nowsze (rozwijane na OpenJDK 26; Maven Wrapper dojdzie z Labem 1)
-- Apache Maven 3.9+ (do czasu wrappera)
+- JDK 25 lub nowsze (rozwijane na OpenJDK 26)
+- Maven niewymagany — repo zawiera Maven Wrapper (`catalog/mvnw`)
 
 ## Dokumentacja
 
@@ -26,3 +30,4 @@ Dwujęzyczna EN/PL, struktura 1:1 — [docs/en](docs/en) / [docs/pl](docs/pl):
 - [Decyzje](docs/pl/DECISIONS.md) — dlaczego jest tak, jak jest
 - [Stan](docs/pl/STATE.md) — gdzie projekt aktualnie stoi
 - [Historia zmian](docs/pl/CHANGELOG.md) — kamienie milowe
+- [Ściąga labu 1](docs/pl/labs/lab-1.md) — przygotowanie do prezentacji
