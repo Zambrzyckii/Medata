@@ -8,6 +8,7 @@ Medical Laboratory Information System (LIS) — a portfolio project growing out 
 - Product vision & lab requirements: `docs/en/VISION.md`
 - Working conventions (git, docs, quality, definition of done): `docs/en/CONVENTIONS.md`
 - Decision log: `docs/en/DECISIONS.md`
+- Architecture & diagrams: `docs/en/ARCHITECTURE.md` (update diagrams with every architecture change); ADRs in `docs/{pl,en}/adr/`
 - Public front door: `README.md` / `README.pl.md` — keep Quick start and Requirements always current.
 - Per-lab presentation cheat sheets: `docs/{pl,en}/labs/lab-N.md` — a ≤30-line summary of what was built and the likely exam questions; create one at every lab boundary.
 

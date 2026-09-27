@@ -21,3 +21,4 @@
 | 2026-09-26 | Plain commit messages instead of Conventional Commits (`lab-N` tags stay) | user (veto of Claude's proposal) | Simplicity — git history is the user's own work |
 | 2026-09-26 | Spring Boot 4.0.8 for labs 2+ (the 4.0 line, not the newest 4.1) | Claude, accepted by the user | Pairs with the stable Spring Cloud `2025.1.x` train needed from lab 4; to be re-verified at lab 4 |
 | 2026-09-26 | Lab 1's `Main.java` deleted at the start of lab 2 — the tasks 2–7 demo lives in the `lab-1` tag | Claude, accepted by the user | Lab 2 does not need it; tags exist precisely so every stage stays reproducible |
+| 2026-09-27 | Input validation in the service layer (`LabTestService.save`: name/unit not blank, min ≤ max, price ≥ 0), the runner only presents the error | user (request), designed by Claude | Business rules belong in services — lab 3 REST will reuse them |

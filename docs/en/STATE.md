@@ -1,24 +1,23 @@
 # Medata — current state
 
 > English version. Polish 1:1 counterpart: [../pl/STATE.md](../pl/STATE.md)
-> Last updated: 2026-09-26
+> Last updated: 2026-09-27
 
 ## Phase
 
-**Lab 2 in progress** (lab 1 closed with a commit and the `lab-1` tag, repo on GitHub: `Zambrzyckii/medata`). Batches 1–4/6 done: rebuild on Spring Boot 4.0.8, JPA entities (plural snake_case tables, lazy relations, client UUIDs), `@Repository` repositories (incl. `findAllByCategory`) and `@Service` services with constructor injection. `.editorconfig` gained a `[*.java] indent_size = 2` override (google-java-format compliance).
+**Lab 2 COMPLETE** — all tasks 1–5 (8/8 pts) + input validation (requested by the user), verified with a full CRUD-cycle test. Awaiting the commit with the `lab-2` tag and the user creating the CI file `.github/workflows/build.yml` (content provided in chat).
 
 ## What exists
 
-- `catalog/` — the finished lab 1 console application (Maven, Java 25, Lombok, Spotless, `mvnw` wrapper): `model` package (`TestCategory`, `LabTest`, `addLabTest` helper), `dto` package (record `LabTestDto`), `Main` with tasks 2–7 (sample data, `forEach` printout, three Stream API pipelines, serialization to `categories.bin`, parallelism on a custom `ForkJoinPool` with timing)
-- `docs/pl|en/`: VISION, CONVENTIONS, DECISIONS, STATE, CHANGELOG plus the presentation cheat sheet `labs/lab-1.md`
-- Root: `CLAUDE.md`, `README.md`/`README.pl.md`, `.editorconfig`, `.gitignore`
-- Lab instructions (PDF) in the parent directory `/home/bob/Mikro`
+- `catalog/` — Spring Boot 4.0.8 app (Java 25, Lombok, Spotless): JPA entities `TestCategory`/`LabTest` (in-memory H2, client UUIDs, plural snake_case tables, lazy relations), record `LabTestDto`, repositories (`findAllByCategory`), services (validation in `LabTestService.save`), `SampleDataInitializer` (`@Order(1)`), `ConsoleRunner` (`@Order(2)`, commands help/categories/tests/add/delete/stop)
+- `docs/pl|en/`: VISION, CONVENTIONS, DECISIONS, STATE, CHANGELOG, **ARCHITECTURE (Mermaid: containers + ERD)**, `adr/001–003`, cheat sheets `labs/lab-1.md`, `labs/lab-2.md`
+- Root: `CLAUDE.md`, README ×2 (with CI badge), `.editorconfig` (`[*.java] indent_size = 2`), `.gitignore`
+- GitHub repo: `Zambrzyckii/medata` (main + tag `lab-1`)
 
 ## Development environment
 
-- OpenJDK 26.0.2 (compiled with `--release 25` — LTS), Maven 3.9.16 + wrapper in the repo
-- Git: branch `main`, documentation-foundation commit done; source code is typed exclusively by the user by hand (the agent shows it in chat)
+- OpenJDK 26.0.2 (`--release 25`), Maven 3.9.16 + wrapper; code is typed by the user by hand (exception: lab 2 validation — explicit delegation)
 
 ## Next step
 
-Lab 2, batch 5/6 (task 4): sample data initializer as a `@Component`/`CommandLineRunner` with `@Order(1)`. Then: CRUD runner (task 5); at the lab boundary: `ARCHITECTURE.md` with Mermaid, first ADRs, CI (GitHub Actions), `labs/lab-2.md` cheat sheet.
+Commit + tag `lab-2` and the CI file (user). Then **Lab 3**: Spring MVC REST — separate DTOs (create/update, read, list), controllers with full CRUD and hierarchical URLs, correct HTTP codes, cascade delete of a category with its tests, `request.http` files; lab 3 convention: OpenAPI/springdoc.

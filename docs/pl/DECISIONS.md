@@ -21,3 +21,4 @@
 | 2026-09-26 | Zwykłe treści commitów zamiast Conventional Commits (tagi `lab-N` zostają) | użytkownik (weto propozycji Claude'a) | Prostota — historia gita to praca użytkownika |
 | 2026-09-26 | Spring Boot 4.0.8 na laby 2+ (linia 4.0, nie najnowsza 4.1) | Claude, zaakceptowane przez użytkownika | Parowanie ze stabilnym trainem Spring Cloud `2025.1.x` potrzebnym od labu 4; do ponownej weryfikacji przy labie 4 |
 | 2026-09-26 | `Main.java` z labu 1 usunięty na starcie labu 2 — demo zadań 2–7 żyje w tagu `lab-1` | Claude, zaakceptowane przez użytkownika | Lab 2 go nie potrzebuje; tagi istnieją po to, by każdy etap był odtwarzalny |
+| 2026-09-27 | Walidacja danych wejściowych w warstwie serwisu (`LabTestService.save`: nazwa/jednostka niepuste, min ≤ max, cena ≥ 0), runner tylko prezentuje błąd | użytkownik (zlecenie), projekt Claude | Reguły biznesowe mają mieszkać w serwisach — skorzysta z nich też REST w labie 3 |
