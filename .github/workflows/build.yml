@@ -3,11 +3,16 @@ name: Build
 on:
   push:
     branches: [main]
+    paths: ['services/**', '.github/workflows/build.yml']
   pull_request:
+    paths: ['services/**', '.github/workflows/build.yml']
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [category, lab-test]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -15,6 +20,6 @@ jobs:
           distribution: temurin
           java-version: '25'
           cache: maven
-      - name: Build with Maven
+      - name: Build ${{ matrix.service }}
         run: ./mvnw --batch-mode verify
-        working-directory: catalog
+        working-directory: services/${{ matrix.service }}

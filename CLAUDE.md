@@ -23,7 +23,9 @@ Medical Laboratory Information System (LIS) — a portfolio project growing out 
 - The user does not know the medical domain — explain every medical/health-tech concept in plain language before using it.
 - CORE phase (labs): no features beyond the lab instructions. The feature backlog is closed — do not propose new features unprompted.
 
-## Structure
+## Structure (polyglot monorepo)
 
 - `docs/{pl,en}/` — project-wide documentation
-- each future service/module — its own `docs/{pl,en}/` and its own `CLAUDE.md`
+- `services/<name>/` — one directory per standalone service (currently `category`, `lab-test`, `gateway`). **Service-directory contract:** each service ships its own build & run (Java: `mvnw`), its own `docs/{pl,en}/`, its own `CLAUDE.md`, and (from lab 6) its own Dockerfile. No shared parent build — future services may use other languages/stacks.
+- `web/` (future) — frontends; `deploy/` (future) — compose/orchestration
+- CI: one workflow with a per-service matrix, triggered by `services/**` paths

@@ -5,7 +5,7 @@
 
 ## Phase
 
-**Lab 3 COMPLETE** — all tasks 1–3 (8/8 pts) verified by the build, an API smoke test (200/201/204/400/404, cascade) and springdoc. Awaiting the commit with the `lab-3` tag.
+**Lab 4 in progress** — the monorepo restructured onto `services/`: the `catalog` monolith split into `services/category` (8081, categories only, entity without the tests collection) and `services/lab-test` (8082, tests + a still-full category copy to be slimmed), `request.http` moved to `services/gateway/`. Both services build and run simultaneously (verified). The file restructuring was done by Claude at the user's explicit request.
 
 ## What exists
 
@@ -21,4 +21,4 @@
 
 ## Next step
 
-Commit + tag `lab-3` (user). Then **Lab 4 — microservices**: split into a category service and a test service (private databases, simplified category replica), event-style REST communication on category add/remove, Spring Cloud Gateway with routing, `request.http` updated to the gateway port. Lab 4 conventions: module documentation template + event sequence diagram. Note: verify the Spring Cloud `2025.1.x` ↔ Boot 4.0 pairing (ADR-002).
+Lab 4, batch 1: slim the category replica in `lab-test` (entity `id`+`name`) + fixed UUIDs in both services' initializers. Then: internal event endpoints → publishing events via `RestClient` → the gateway project (verify ADR-002!) → end-to-end tests, a new CI workflow (matrix), the module docs template and the lab boundary.

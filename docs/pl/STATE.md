@@ -5,7 +5,7 @@
 
 ## Faza
 
-**Lab 3 UKOŃCZONY** — komplet zadań 1–3 (8/8 pkt) zweryfikowany buildem, smoke testem API (200/201/204/400/404, kaskada) i springdociem. Oczekuje na commit z tagiem `lab-3`.
+**Lab 4 w toku** — struktura monorepo przestawiona na `services/`: monolit `catalog` podzielony na `services/category` (8081, tylko kategorie, encja bez kolekcji badań) i `services/lab-test` (8082, badania + pełna jeszcze kopia kategorii do odchudzenia), `request.http` przeniesiony do `services/gateway/`. Oba serwisy budują się i działają równocześnie (zweryfikowane). Restrukturyzację plików wykonał Claude na jawne zlecenie użytkownika.
 
 ## Co istnieje
 
@@ -21,4 +21,4 @@
 
 ## Następny krok
 
-Commit + tag `lab-3` (użytkownik). Potem **Lab 4 — mikroserwisy**: podział na serwis kategorii i serwis badań (prywatne bazy, uproszczona replika kategorii), komunikacja zdarzeniowa REST przy dodaniu/usunięciu kategorii, Spring Cloud Gateway z routingiem, aktualizacja `request.http` na port gatewaya. Konwencje labu 4: szablon dokumentacji modułu + diagram sekwencji zdarzeń. Uwaga: zweryfikować parowanie Spring Cloud `2025.1.x` ↔ Boot 4.0 (ADR-002).
+Lab 4, partia 1: odchudzenie repliki kategorii w `lab-test` (encja `id`+`name`) + stałe UUID-y w initializerach obu serwisów. Dalej: wewnętrzne endpointy zdarzeń → nadawanie zdarzeń `RestClient`em → projekt gatewaya (weryfikacja ADR-002!) → testy całości, nowy workflow CI (matrix), szablon docs modułów i granica labu.
