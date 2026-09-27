@@ -8,7 +8,7 @@
 - **Kod źródłowy pisze wyłącznie użytkownik, własnoręcznie.** Agent nie tworzy ani nie edytuje plików z kodem/konfiguracją — pokazuje kod na czacie (partiami po jednym pliku, z wyjaśnieniami; użytkownik uczy się Javy przychodząc z .NET). Wyjątek: dokumentacja (`docs/`, README, CLAUDE.md) — tę agent edytuje bezpośrednio w ramach stałego obowiązku jej pielęgnacji.
 - **Commit dokładnie w momencie ukończenia labu.** Gdy wszystkie zadania labu N działają, agent przechodzi checklistę granicy labu (sekcja 8) i wyraźnie sygnalizuje: **„LAB N UKOŃCZONY — czas na commit"**, podając proponowaną komendę, treść commita oraz tag `lab-N`. Dzięki temu każdy etap można pokazać prowadzącemu osobno (checkout tagu), zamiast od razu gotowego produktu z labu 7.
 - Poza granicami labów commity powstają w naturalnych punktach (spójna, działająca zmiana) — agent proponuje moment i treść.
-- Treść commitów: **Conventional Commits** po angielsku (`feat:`, `fix:`, `docs:`, `refactor:`, `chore:`, `test:`), tryb rozkazujący, opcjonalny zakres — np. `feat(catalog): add LabTest entity with builder`.
+- Treść commitów: zwykłe, zwięzłe opisy po angielsku mówiące, co zmieniono (np. `Implement lab 2 JPA entities`). Świadoma decyzja użytkownika: bez prefiksów Conventional Commits.
 - Tagi etapów: `lab-1` … `lab-7` (adnotowane: `git tag -a lab-1 -m "Lab 1: Java SE"`).
 - Gałęzie: faza CORE liniowo na `main` (laby budują na sobie, historia ma być czytelna dla prowadzącego); faza FUTURE — gałęzie `feat/<nazwa>`.
 

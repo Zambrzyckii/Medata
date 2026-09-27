@@ -8,7 +8,7 @@
 - **Source code is written exclusively by the user, by hand.** The agent never creates or edits code/config files — it shows code in chat (in batches of one file, with explanations; the user is learning Java coming from .NET). Exception: documentation (`docs/`, README, CLAUDE.md) — the agent edits those directly as part of its standing maintenance duty.
 - **A commit exactly at the moment a lab is completed.** When all tasks of lab N work, the agent walks through the lab-boundary checklist (section 8) and clearly signals: **"LAB N COMPLETE — time to commit"**, providing the proposed command, the commit message and the `lab-N` tag. This way every stage can be shown to the instructor separately (tag checkout) instead of a finished lab-7 product.
 - Between lab boundaries, commits happen at natural points (a coherent, working change) — the agent proposes the moment and the message.
-- Commit messages: **Conventional Commits** in English (`feat:`, `fix:`, `docs:`, `refactor:`, `chore:`, `test:`), imperative mood, optional scope — e.g. `feat(catalog): add LabTest entity with builder`.
+- Commit messages: plain, concise English descriptions of what changed (e.g. `Implement lab 2 JPA entities`). A deliberate user decision: no Conventional Commits prefixes.
 - Stage tags: `lab-1` … `lab-7` (annotated: `git tag -a lab-1 -m "Lab 1: Java SE"`).
 - Branches: the CORE phase runs linearly on `main` (labs build on each other and the history must stay readable for the instructor); the FUTURE phase uses `feat/<name>` branches.
 

@@ -5,7 +5,7 @@
 
 ## Faza
 
-**Lab 1 UKOŃCZONY** — komplet zadań 1–7 (8/8 pkt) zweryfikowany uruchomieniem i `./mvnw verify`. Oczekuje na commit użytkownika z tagiem `lab-1`.
+**Lab 2 w toku** (lab 1 zamknięty commitem i tagiem `lab-1`, repo na GitHubie: `Zambrzyckii/medata`). Ukończone partie 1–4/6: przebudowa na Spring Boot 4.0.8, encje JPA (tabele mnogie snake_case, relacje lazy, UUID klienta), repozytoria `@Repository` (w tym `findAllByCategory`) i serwisy `@Service` z wstrzykiwaniem przez konstruktor. W `.editorconfig` dopisany wyjątek `[*.java] indent_size = 2` (zgodność z google-java-format).
 
 ## Co istnieje
 
@@ -21,4 +21,4 @@
 
 ## Następny krok
 
-Commit + tag `lab-1` (wykonuje użytkownik; opcjonalnie publikacja repo na GitHubie przez `gh repo create`). Potem **Lab 2**: Spring Boot + Spring Data JPA (H2 in-memory) — encje JPA, repozytoria, serwisy, konsolowy runner CRUD; konwencje aktywowane w labie 2: `ARCHITECTURE.md` z diagramami Mermaid, pierwsze ADR-y, CI (GitHub Actions).
+Lab 2, partia 5/6 (zadanie 4): initializer danych przykładowych jako `@Component`/`CommandLineRunner` z `@Order(1)`. Dalej: runner CRUD (zad. 5); na granicy labu: `ARCHITECTURE.md` z Mermaid, pierwsze ADR-y, CI (GitHub Actions), ściąga `labs/lab-2.md`.

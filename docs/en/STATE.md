@@ -5,7 +5,7 @@
 
 ## Phase
 
-**Lab 1 COMPLETE** — all tasks 1–7 (8/8 pts) verified by running the app and `./mvnw verify`. Awaiting the user's commit with the `lab-1` tag.
+**Lab 2 in progress** (lab 1 closed with a commit and the `lab-1` tag, repo on GitHub: `Zambrzyckii/medata`). Batches 1–4/6 done: rebuild on Spring Boot 4.0.8, JPA entities (plural snake_case tables, lazy relations, client UUIDs), `@Repository` repositories (incl. `findAllByCategory`) and `@Service` services with constructor injection. `.editorconfig` gained a `[*.java] indent_size = 2` override (google-java-format compliance).
 
 ## What exists
 
@@ -21,4 +21,4 @@
 
 ## Next step
 
-Commit + tag `lab-1` (done by the user; optionally publish the repo to GitHub via `gh repo create`). Then **Lab 2**: Spring Boot + Spring Data JPA (H2 in-memory) — JPA entities, repositories, services, a console CRUD runner; conventions activating in lab 2: `ARCHITECTURE.md` with Mermaid diagrams, first ADRs, CI (GitHub Actions).
+Lab 2, batch 5/6 (task 4): sample data initializer as a `@Component`/`CommandLineRunner` with `@Order(1)`. Then: CRUD runner (task 5); at the lab boundary: `ARCHITECTURE.md` with Mermaid, first ADRs, CI (GitHub Actions), `labs/lab-2.md` cheat sheet.
