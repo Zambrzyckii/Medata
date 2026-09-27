@@ -8,7 +8,7 @@
 
 ## Status
 
-Lab 2 ukończony — katalog badań na Spring Boot + Spring Data JPA (H2 in-memory), z konsolowym CRUD-em. Bieżący status: [docs/pl/STATE.md](docs/pl/STATE.md).
+Lab 3 ukończony — katalog badań jako REST API (Spring MVC, DTO, kody HTTP, Swagger UI pod `/swagger-ui.html`, przykłady w `catalog/request.http`). Bieżący status: [docs/pl/STATE.md](docs/pl/STATE.md).
 
 ## Szybki start
 

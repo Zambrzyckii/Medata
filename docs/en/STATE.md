@@ -5,19 +5,20 @@
 
 ## Phase
 
-**Lab 3 in progress** (lab 2 closed with the `lab-2` tag, GitHub Actions CI green). Batches 1–2/6 done: web starter (Tomcat on 8080, `ConsoleRunner` deleted) plus delete cascade (`CascadeType.REMOVE` + `orphanRemoval`) and three category DTOs (create/update, read, list).
+**Lab 3 COMPLETE** — all tasks 1–3 (8/8 pts) verified by the build, an API smoke test (200/201/204/400/404, cascade) and springdoc. Awaiting the commit with the `lab-3` tag.
 
 ## What exists
 
-- `catalog/` — Spring Boot 4.0.8 app (Java 25, Lombok, Spotless): JPA entities `TestCategory`/`LabTest` (in-memory H2, client UUIDs, plural snake_case tables, lazy relations), record `LabTestDto`, repositories (`findAllByCategory`), services (validation in `LabTestService.save`), `SampleDataInitializer` (`@Order(1)`), `ConsoleRunner` (`@Order(2)`, commands help/categories/tests/add/delete/stop)
-- `docs/pl|en/`: VISION, CONVENTIONS, DECISIONS, STATE, CHANGELOG, **ARCHITECTURE (Mermaid: containers + ERD)**, `adr/001–003`, cheat sheets `labs/lab-1.md`, `labs/lab-2.md`
-- Root: `CLAUDE.md`, README ×2 (with CI badge), `.editorconfig` (`[*.java] indent_size = 2`), `.gitignore`
-- GitHub repo: `Zambrzyckii/medata` (main + tag `lab-1`)
+- `catalog/` — REST API on Spring Boot 4.0.8: JPA entities with delete cascade, 6 DTOs (create/update, read, list × 2 entities), 2 `@RestController`s (hierarchical routes, endpoint table in ARCHITECTURE.md), `GlobalExceptionHandler` (validation → 400), `SampleDataInitializer`, springdoc/Swagger UI, `request.http` (17 requests)
+- `docs/pl|en/`: VISION, CONVENTIONS, DECISIONS, STATE, CHANGELOG, ARCHITECTURE (containers + **API table** + ERD), `adr/001–003`, cheat sheets `labs/lab-1..3.md`
+- Root: `CLAUDE.md`, README ×2 (CI badge), `.editorconfig`, `.gitignore`, `.github/workflows/build.yml` (CI green)
+- GitHub repo: `Zambrzyckii/medata` (main + tags `lab-1`, `lab-2`)
 
 ## Development environment
 
-- OpenJDK 26.0.2 (`--release 25`), Maven 3.9.16 + wrapper; code is typed by the user by hand (exception: lab 2 validation — explicit delegation)
+- OpenJDK 26.0.2 (`--release 25`), Maven 3.9.16 + wrapper; code typed by the user by hand (exception: lab 2 validation — explicit delegation)
+- IDE: IntelliJ IDEA **Community** — `request.http` run via VS Code REST Client (the HTTP Client needs Ultimate); free JetBrains student licence suggested
 
 ## Next step
 
-Lab 3, batch 3/6: three lab-test DTOs (reworking lab 1's `LabTestDto` into `LabTestReadDto` with an id). Then: category controller → test controller (+ 404/400 handling) → `request.http` + springdoc and the lab boundary.
+Commit + tag `lab-3` (user). Then **Lab 4 — microservices**: split into a category service and a test service (private databases, simplified category replica), event-style REST communication on category add/remove, Spring Cloud Gateway with routing, `request.http` updated to the gateway port. Lab 4 conventions: module documentation template + event sequence diagram. Note: verify the Spring Cloud `2025.1.x` ↔ Boot 4.0 pairing (ADR-002).

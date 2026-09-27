@@ -8,7 +8,7 @@
 
 ## Status
 
-Lab 2 complete — the test catalog on Spring Boot + Spring Data JPA (in-memory H2), with a console CRUD. Live status: [docs/en/STATE.md](docs/en/STATE.md).
+Lab 3 complete — the test catalog as a REST API (Spring MVC, DTOs, HTTP codes, Swagger UI at `/swagger-ui.html`, examples in `catalog/request.http`). Live status: [docs/en/STATE.md](docs/en/STATE.md).
 
 ## Quick start
 

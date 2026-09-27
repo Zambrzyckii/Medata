@@ -1,0 +1,96 @@
+### ============ CATEGORIES ============
+
+### List all categories (collection DTO: id + name)
+GET http://localhost:8080/api/categories
+
+### Read a single category (200) — paste an id from the list above
+GET http://localhost:8080/api/categories/ee1867fa-a259-4544-9f3c-0c7e421a9f75
+
+### Read a non-existing category (404)
+GET http://localhost:8080/api/categories/00000000-0000-0000-0000-000000000000
+
+### Create a category (201 + Location header)
+POST http://localhost:8080/api/categories
+Content-Type: application/json
+
+{
+    "name": "Serology",
+    "requiresFasting": false
+}
+
+### Update a category (204)
+PUT http://localhost:8080/api/categories/ee1867fa-a259-4544-9f3c-0c7e421a9f75
+Content-Type: application/json
+
+{
+    "name": "Serology and immunology",
+    "requiresFasting": true
+}
+
+### Delete a category — cascades to its tests (204)
+DELETE http://localhost:8080/api/categories/ee1867fa-a259-4544-9f3c-0c7e421a9f75
+
+### ============ LAB TESTS ============
+
+### List all tests (collection DTO: id + name)
+GET http://localhost:8080/api/tests
+
+### List tests of one category (200; empty category -> 200 with empty list)
+GET http://localhost:8080/api/categories/ee1867fa-a259-4544-9f3c-0c7e421a9f75/tests
+
+### List tests of a non-existing category (404 - different from empty!)
+GET http://localhost:8080/api/categories/00000000-0000-0000-0000-000000000000/tests
+
+### Read a single test (200; category flattened to its name)
+GET http://localhost:8080/api/tests/ee1867fa-a259-4544-9f3c-0c7e421a9f75
+
+### Add a test to a category (201)
+POST http://localhost:8080/api/categories/ee1867fa-a259-4544-9f3c-0c7e421a9f75/tests
+Content-Type: application/json
+
+{
+    "name": "Platelets",
+    "unit": "10^9/L",
+    "referenceMin": 150,
+    "referenceMax": 400,
+    "price": 14.00
+}
+
+### Add a test to a non-existing category (404)
+POST http://localhost:8080/api/categories/00000000-0000-0000-0000-000000000000/tests
+Content-Type: application/json
+
+{
+    "name": "Ghost",
+    "unit": "x",
+    "referenceMin": 1,
+    "referenceMax": 2,
+    "price": 1.00
+}
+
+### Add an invalid test - referenceMin > referenceMax (400 from validation)
+POST http://localhost:8080/api/categories/ee1867fa-a259-4544-9f3c-0c7e421a9f75/tests
+Content-Type: application/json
+
+{
+    "name": "Broken",
+    "unit": "x",
+    "referenceMin": 10,
+    "referenceMax": 5,
+    "price": 1.00
+}
+
+### Update a test (204)
+PUT http://localhost:8080/api/tests/ee1867fa-a259-4544-9f3c-0c7e421a9f75    
+Content-Type: application/json
+
+{
+    "name": "Platelets",
+    "unit": "10^9/L",
+    "referenceMin": 140,
+    "referenceMax": 420,
+    "price": 15.00
+}
+
+### Delete a test (204)
+DELETE http://localhost:8080/api/tests/ee1867fa-a259-4544-9f3c-0c7e421a9f75

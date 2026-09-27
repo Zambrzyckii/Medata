@@ -3,6 +3,8 @@
 > English version. Polish 1:1 counterpart: [../pl/CHANGELOG.md](../pl/CHANGELOG.md)
 > Milestone-level entries, newest first.
 
+- **2026-09-27** — **Lab 3 complete (8/8 pts)**: REST API — 6 DTOs (create/update, read, list per entity), controllers with hierarchical routes and 200/201/204/400/404 codes, empty vs non-existing category distinction, cascade delete, `GlobalExceptionHandler` (validation → 400), `request.http` (17 requests), springdoc/Swagger UI. `ConsoleRunner` deleted (lives in the `lab-2` tag). Cheat sheet: `labs/lab-3.md`.
+
 - **2026-09-27** — **Lab 2 complete (8/8 pts)**: `catalog` rebuilt on Spring Boot 4.0.8 — JPA entities (in-memory H2, client UUIDs), repositories, services with input validation, initializer, console CRUD runner. Lab 2 conventions activated: `ARCHITECTURE.md` (Mermaid: containers + ERD), ADRs 001–003, GitHub Actions CI. Cheat sheet: `labs/lab-2.md`.
 
 - **2026-09-26** — **Lab 1 complete (8/8 pts)**: console application `catalog/` (Java SE, Maven, Lombok, Spotless, wrapper) — entities with builder and comparison, DTO record, sample data, three Stream API pipelines, binary serialization, parallelism on a custom `ForkJoinPool`. Code typed by hand by the user; presentation cheat sheet: `labs/lab-1.md`.
