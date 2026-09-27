@@ -5,7 +5,7 @@
 
 ## Phase
 
-**Lab 2 COMPLETE** — all tasks 1–5 (8/8 pts) + input validation (requested by the user), verified with a full CRUD-cycle test. Awaiting the commit with the `lab-2` tag and the user creating the CI file `.github/workflows/build.yml` (content provided in chat).
+**Lab 3 in progress** (lab 2 closed with the `lab-2` tag, GitHub Actions CI green). Batches 1–2/6 done: web starter (Tomcat on 8080, `ConsoleRunner` deleted) plus delete cascade (`CascadeType.REMOVE` + `orphanRemoval`) and three category DTOs (create/update, read, list).
 
 ## What exists
 
@@ -20,4 +20,4 @@
 
 ## Next step
 
-Commit + tag `lab-2` and the CI file (user). Then **Lab 3**: Spring MVC REST — separate DTOs (create/update, read, list), controllers with full CRUD and hierarchical URLs, correct HTTP codes, cascade delete of a category with its tests, `request.http` files; lab 3 convention: OpenAPI/springdoc.
+Lab 3, batch 3/6: three lab-test DTOs (reworking lab 1's `LabTestDto` into `LabTestReadDto` with an id). Then: category controller → test controller (+ 404/400 handling) → `request.http` + springdoc and the lab boundary.

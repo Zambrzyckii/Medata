@@ -5,7 +5,7 @@
 
 ## Faza
 
-**Lab 2 UKOŃCZONY** — komplet zadań 1–5 (8/8 pkt) + walidacja danych wejściowych (zlecona przez użytkownika), zweryfikowany testem pełnego cyklu CRUD. Oczekuje na commit z tagiem `lab-2` oraz na utworzenie przez użytkownika pliku CI `.github/workflows/build.yml` (treść podana na czacie).
+**Lab 3 w toku** (lab 2 zamknięty tagiem `lab-2`, CI na GitHub Actions zielone). Ukończone partie 1–2/6: starter web (Tomcat na 8080, `ConsoleRunner` usunięty) oraz kaskada usuwania (`CascadeType.REMOVE` + `orphanRemoval`) i trzy DTO kategorii (create/update, read, list).
 
 ## Co istnieje
 
@@ -20,4 +20,4 @@
 
 ## Następny krok
 
-Commit + tag `lab-2` i plik CI (użytkownik). Potem **Lab 3**: Spring MVC REST — osobne DTO (create/update, read, list), kontrolery z pełnym CRUD i hierarchicznymi adresami, poprawne kody HTTP, kaskadowe usuwanie kategorii z badaniami, pliki `request.http`; konwencja labu 3: OpenAPI/springdoc.
+Lab 3, partia 3/6: trzy DTO badań (przebudowa `LabTestDto` z labu 1 na `LabTestReadDto` z id). Dalej: kontroler kategorii → kontroler badań (+ obsługa 404/400) → `request.http` + springdoc i granica labu.

@@ -1,5 +1,6 @@
 package com.medata.catalog.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -32,7 +33,11 @@ public class TestCategory implements Comparable<TestCategory> {
   private String name;
   private boolean requiresFasting;
 
-  @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+  @OneToMany(
+      mappedBy = "category",
+      fetch = FetchType.LAZY,
+      cascade = CascadeType.REMOVE,
+      orphanRemoval = true)
   @Builder.Default
   private List<LabTest> labTests = new ArrayList<>();
 
