@@ -9,21 +9,23 @@ The system's only public entry (**:8080**): Spring Cloud Gateway in the reactive
 ## Running
 
 ```bash
-./mvnw spring-boot:run          # starts on :8080 ("Netty started")
+./mvnw spring-boot:run          # dev mode on :8080 ("Netty started")
 ./mvnw spotless:apply verify    # format + full build
 ```
 
-Requires the target services to be up — without them, matched routes return 500 (connection refused to the target), not 404.
+Requires the target services to be up — without them, matched routes return 500 (connection refused to the target), not 404. In containers the gateway runs from the root `compose.yaml` (`docker compose up --build`), same multi-stage Dockerfile pattern as the other services; it is one of only two containers with a published host port.
 
-## Configuration (`src/main/resources/application.properties`)
+## Configuration
 
-| Order | `Path=` predicate | Target |
+Routes in `src/main/resources/application.properties`; since lab 6 the target URIs are `${VAR:default}` placeholders — the default keeps dev mode working, the env var (set in `compose.yaml`) redirects to container DNS names:
+
+| Order | `Path=` predicate | Target URI |
 |---|---|---|
-| 0 | `/api/categories/*/tests` | `http://localhost:8082` |
-| 1 | `/api/categories/**` | `http://localhost:8081` |
-| 2 | `/api/tests/**` | `http://localhost:8082` |
+| 0 | `/api/categories/*/tests` | `${LABTEST_URL:http://localhost:8082}` |
+| 1 | `/api/categories/**` | `${CATEGORY_URL:http://localhost:8081}` |
+| 2 | `/api/tests/**` | `${LABTEST_URL:http://localhost:8082}` |
 
-Most specific first (`*` = one segment, `**` = any number). `/internal/**` deliberately has no route. Target addresses are hardcoded until lab 6 (then the environment), replaced by discovery (`lb://`) in lab 7.
+Most specific first (`*` = one segment, `**` = any number). `/internal/**` deliberately has no route. Compose sets `CATEGORY_URL=http://category:8081` and `LABTEST_URL=http://lab-test:8082`; discovery (`lb://`) replaces this in lab 7.
 
 ## Data model
 

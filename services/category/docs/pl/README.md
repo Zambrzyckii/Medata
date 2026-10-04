@@ -9,17 +9,24 @@
 ## Uruchomienie
 
 ```bash
-./mvnw spring-boot:run          # start na :8081
+./mvnw spring-boot:run          # tryb dev na :8081 (H2 in-memory)
 ./mvnw spotless:apply verify    # format + pełny build
 ```
 
-## Konfiguracja (`src/main/resources/application.properties`)
+W kontenerach serwis startuje z całosystemowego `compose.yaml` w roocie repo (`docker compose up --build`); tutejszy multi-stage `Dockerfile` buduje jar własnym wrapperem serwisu i uruchamia go na JRE Eclipse Temurin 25.
 
-| Klucz | Wartość | Po co |
+## Konfiguracja
+
+Defaulty w `src/main/resources/application.properties`; każdy klucz można nadpisać zmienną środowiskową (relaxed binding Springa) — i dokładnie to robi `compose.yaml`:
+
+| Właściwość | Default | Nadpisanie env (compose) |
 |---|---|---|
-| `server.port` | `8081` | stały port serwisu |
-| `spring.datasource.url` | `jdbc:h2:mem:category` | prywatna baza in-memory |
-| `labtest.base-url` | `http://localhost:8082` | adres odbiorcy zdarzeń (lab 6/7: nadpisze środowisko) |
+| `server.port` | `8081` | — (stały; `EXPOSE 8081`, niepublikowany na host) |
+| `spring.datasource.url` | `jdbc:h2:mem:category` | `SPRING_DATASOURCE_URL=jdbc:postgresql://category-db:5432/category` |
+| `spring.datasource.username` / `password` | `sa` / puste | `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` |
+| `labtest.base-url` | `http://localhost:8082` | `LABTEST_BASE_URL=http://lab-test:8082` |
+
+Nigdzie nie ma `driver-class-name`: Boot wnioskuje sterownik z URL-a JDBC, więc przełączenie H2↔PostgreSQL to wyłącznie URL. `ddl-auto=create-drop` obowiązuje na obu silnikach (schemat + seed per start; migracje wejdą w labie 7).
 
 ## Model danych
 

@@ -9,16 +9,23 @@ Owner of laboratory tests (`LabTest`) together with a category **replica** (`Tes
 ## Running
 
 ```bash
-./mvnw spring-boot:run          # starts on :8082
+./mvnw spring-boot:run          # dev mode on :8082 (in-memory H2)
 ./mvnw spotless:apply verify    # format + full build
 ```
 
-## Configuration (`src/main/resources/application.properties`)
+In containers the service runs from the whole-system `compose.yaml` in the repo root (`docker compose up --build`); the multi-stage `Dockerfile` here builds the jar with the service's own wrapper and runs it on an Eclipse Temurin 25 JRE.
 
-| Key | Value | Why |
+## Configuration
+
+Defaults in `src/main/resources/application.properties`; every key can be overridden by an environment variable (Spring relaxed binding), which is exactly what `compose.yaml` does:
+
+| Property | Default | Env override (compose) |
 |---|---|---|
-| `server.port` | `8082` | fixed service port |
-| `spring.datasource.url` | `jdbc:h2:mem:labtest` | private in-memory database |
+| `server.port` | `8082` | — (fixed; `EXPOSE 8082`, not published to the host) |
+| `spring.datasource.url` | `jdbc:h2:mem:labtest` | `SPRING_DATASOURCE_URL=jdbc:postgresql://lab-test-db:5432/labtest` |
+| `spring.datasource.username` / `password` | `sa` / empty | `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` |
+
+No `driver-class-name` anywhere: Boot infers the driver from the JDBC URL. `ddl-auto=create-drop` applies to both engines (schema + seed per start; migrations come in lab 7).
 
 ## Data model
 

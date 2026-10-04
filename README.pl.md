@@ -8,9 +8,18 @@
 
 ## Status
 
-Lab 5 ukończony — frontend Angular (`web/catalog`) z siedmioma routowanymi widokami CRUD na mikroserwisach labu 4 (`category` :8081, `lab-test` :8082) za Spring Cloud Gateway (:8080). Bieżący status: [docs/pl/STATE.md](docs/pl/STATE.md).
+Lab 6 ukończony — cały system skonteneryzowany: `docker compose up` stawia frontend Angulara na NGINX (:4200), Spring Cloud Gateway (:8080) oraz mikroserwisy `category` + `lab-test`, każdy z własną bazą PostgreSQL. Bieżący status: [docs/pl/STATE.md](docs/pl/STATE.md).
 
 ## Szybki start
+
+```bash
+docker compose up --build
+```
+
+Potem otwórz `http://localhost:4200` (aplikacja) albo `http://localhost:8080/api/categories` (API). Poza Dockerem nic nie jest wymagane — obrazy same budują serwisy. Poświadczenia można nadpisać, kopiując `.env.example` do `.env`.
+
+<details>
+<summary>Tryb deweloperski (hot reload, H2 in-memory, bez Dockera)</summary>
 
 ```bash
 cd services/category && ./mvnw spring-boot:run    # :8081
@@ -19,13 +28,12 @@ cd services/gateway && ./mvnw spring-boot:run     # :8080 (trzeci terminal) — 
 cd web/catalog && npm start                       # :4200 (czwarty terminal) — to otwórz w przeglądarce
 ```
 
-Docelowo ta sekcja zbiegnie do pojedynczego `docker compose up` (zasada jednej komendy — patrz konwencje).
+</details>
 
 ## Wymagania
 
-- JDK 25 lub nowsze (rozwijane na OpenJDK 27; Lombok przypięty na 1.18.48 ze wsparciem JDK 27)
-- Maven niewymagany — każdy serwis ma własny Maven Wrapper (`services/<nazwa>/mvnw`)
-- Node.js 20+ z npm (frontend; rozwijane na Node 26)
+- Docker z pluginem Compose — tyle wystarcza do uruchomienia jedną komendą
+- Tryb deweloperski dodatkowo: JDK 25+ (rozwijane na OpenJDK 27; Lombok przypięty na 1.18.48), Node.js 20+ z npm (rozwijane na Node 26); Maven niewymagany — każdy serwis ma własny wrapper (`services/<nazwa>/mvnw`)
 
 ## Dokumentacja
 

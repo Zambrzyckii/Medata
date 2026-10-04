@@ -1,9 +1,9 @@
 # Medata — architecture
 
 > English version. Polish 1:1 counterpart: [../pl/ARCHITECTURE.md](../pl/ARCHITECTURE.md)
-> As of: lab 4 (microservices + gateway). Convention §6: an architecture change without a diagram update = an unfinished change.
+> As of: lab 6 (containerization). Convention §6: an architecture change without a diagram update = an unfinished change.
 
-## Container view
+## Container view (development mode)
 
 ```mermaid
 flowchart LR
@@ -25,7 +25,26 @@ flowchart LR
     PUB -. "PUT/DELETE /internal/categories/id events" .-> LTC
 ```
 
-Each service owns a **private** H2 database — there is no shared schema and no foreign key across services. Consistency is kept by REST events and the fixed seed UUIDs.
+Each service owns a **private** database — there is no shared schema and no foreign key across services. Consistency is kept by REST events and the fixed seed UUIDs. In development mode the database is in-memory H2; under Docker Compose the very same jar talks to PostgreSQL — the switch is purely environment variables (see below).
+
+## Runtime view (Docker Compose — lab 6)
+
+```mermaid
+flowchart LR
+    Browser((Browser)) -->|":4200"| WEB
+    Client((HTTP client - request.http, curl)) -->|":8080"| GW
+    subgraph net [docker compose - one network, DNS by service name]
+        WEB["web - NGINX<br>Angular bundle + proxy /api -> GATEWAY_URL"]
+        WEB -->|"http://gateway:8080"| GW[gateway :8080]
+        GW -->|"http://category:8081"| CAT[category :8081]
+        GW -->|"http://lab-test:8082"| LT[lab-test :8082]
+        CAT -. "events /internal/..." .-> LT
+        CAT --> CATDB[(category-db<br>PostgreSQL 18)]
+        LT --> LTDB[(lab-test-db<br>PostgreSQL 18)]
+    end
+```
+
+Only `web` (:4200) and `gateway` (:8080) publish host ports; the services and both databases are reachable **solely inside the compose network** — the lab-4 rule "everything through the gateway" is now enforced by the network itself. All cross-container URLs are injected as environment variables in `compose.yaml` (`GATEWAY_URL`, `CATEGORY_URL`, `LABTEST_URL`, `SPRING_DATASOURCE_*`, `LABTEST_BASE_URL`); the images never hardcode an address and the same image would run in any environment. Spring reads env vars over `application.properties` (same idea as `ConnectionStrings__X` in ASP.NET Core), NGINX gets them via `envsubst` on a config template, and the gateway routes use `${VAR:default}` placeholders, so development mode keeps working without any variables set.
 
 ## Event flow (replica sync)
 
@@ -97,4 +116,4 @@ The prefix names the database (`category` / `labtest`). The replica holds the mi
 
 ## Plans
 
-Lab 6: a Dockerfile per service + an NGINX image for the frontend (taking over the dev-proxy role) + `docker compose up`. Lab 7: discovery, 2 lab-test instances, load balancing at the gateway, external databases, a config service.
+Lab 7: a discovery service, 2 lab-test instances behind gateway load balancing, database volumes + schema migrations, a central config service — all inside Compose.

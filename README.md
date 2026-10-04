@@ -8,9 +8,18 @@
 
 ## Status
 
-Lab 5 complete — the Angular frontend (`web/catalog`) with seven routed CRUD views on top of the lab-4 microservices (`category` :8081, `lab-test` :8082) behind Spring Cloud Gateway (:8080). Live status: [docs/en/STATE.md](docs/en/STATE.md).
+Lab 6 complete — the whole system containerized: `docker compose up` starts the Angular frontend on NGINX (:4200), Spring Cloud Gateway (:8080) and the `category` + `lab-test` microservices, each with its own PostgreSQL database. Live status: [docs/en/STATE.md](docs/en/STATE.md).
 
 ## Quick start
+
+```bash
+docker compose up --build
+```
+
+Then open `http://localhost:4200` (the app) or `http://localhost:8080/api/categories` (the API). Nothing but Docker is required — the images build the services themselves. Credentials can be overridden by copying `.env.example` to `.env`.
+
+<details>
+<summary>Development mode (hot reload, H2 in-memory, no Docker)</summary>
 
 ```bash
 cd services/category && ./mvnw spring-boot:run    # :8081
@@ -19,13 +28,12 @@ cd services/gateway && ./mvnw spring-boot:run     # :8080 (third terminal) — t
 cd web/catalog && npm start                       # :4200 (fourth terminal) — open this in the browser
 ```
 
-Eventually this section will converge to a single `docker compose up` (one-command rule — see conventions).
+</details>
 
 ## Requirements
 
-- JDK 25 or newer (developed on OpenJDK 27; Lombok pinned at 1.18.48 for JDK 27 support)
-- Maven not required — every service ships its own Maven Wrapper (`services/<name>/mvnw`)
-- Node.js 20+ with npm (frontend; developed on Node 26)
+- Docker with the Compose plugin — that is all for the one-command run
+- Development mode additionally: JDK 25+ (developed on OpenJDK 27; Lombok pinned at 1.18.48), Node.js 20+ with npm (developed on Node 26); Maven not required — every service ships its own wrapper (`services/<name>/mvnw`)
 
 ## Documentation
 

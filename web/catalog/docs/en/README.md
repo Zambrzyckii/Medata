@@ -15,13 +15,18 @@ npx ng lint          # ESLint
 npm run format       # Prettier
 ```
 
+In containers (lab 6) the frontend ships as an NGINX image built by the multi-stage `Dockerfile` here (Node 22 builds the bundle → `nginx:alpine` serves it) and starts from the root `compose.yaml` (`docker compose up --build`, host port :4200).
+
 ## Configuration
 
 | File | Role |
 |---|---|
-| `proxy.conf.json` | dev proxy: `/api` → `http://localhost:8080` (instead of CORS on the gateway; NGINX takes this role in lab 6) |
+| `proxy.conf.json` | dev proxy: `/api` → `http://localhost:8080` (instead of CORS on the gateway; NGINX takes this role in the container) |
 | `angular.json` → `serve.options.proxyConfig` | wires the proxy into `npm start` |
+| `nginx/default.conf.template` | the container's NGINX config: `envsubst` fills it at startup from env vars; `location /api/` → `proxy_pass` to the gateway, `try_files … /index.html` = SPA fallback for deep links |
 | `eslint.config.js`, `.prettierrc` | lab 5 quality convention |
+
+Container env vars (set in `compose.yaml`, defaults baked into the image): `GATEWAY_URL` (proxy target, compose sets `http://gateway:8080`) and `NGINX_PORT` (listen port, `80`; `EXPOSE 80`, published on the host as :4200).
 
 ## Data model
 

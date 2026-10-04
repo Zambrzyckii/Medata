@@ -1,0 +1,74 @@
+name: medata
+
+services:
+  web:
+    build: ./web/catalog
+    ports:
+      - "4200:80"
+    environment:
+      GATEWAY_URL: http://gateway:8080
+    depends_on:
+      gateway:
+        condition: service_started
+
+  gateway:
+    build: ./services/gateway
+    ports:
+      - "8080:8080"
+    environment:
+      CATEGORY_URL: http://category:8081
+      LABTEST_URL: http://lab-test:8082
+    depends_on:
+      category:
+        condition: service_started
+      lab-test:
+        condition: service_started
+
+  category:
+    build: ./services/category
+    expose:
+      - "8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://category-db:5432/category
+      SPRING_DATASOURCE_USERNAME: ${CATEGORY_DB_USER:-medata}
+      SPRING_DATASOURCE_PASSWORD: ${CATEGORY_DB_PASSWORD:-medata}
+      LABTEST_BASE_URL: http://lab-test:8082
+    depends_on:
+      category-db:
+        condition: service_healthy
+
+  lab-test:
+    build: ./services/lab-test
+    expose:
+      - "8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://lab-test-db:5432/labtest
+      SPRING_DATASOURCE_USERNAME: ${LABTEST_DB_USER:-medata}
+      SPRING_DATASOURCE_PASSWORD: ${LABTEST_DB_PASSWORD:-medata}
+    depends_on:
+      lab-test-db:
+        condition: service_healthy
+
+  category-db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: category
+      POSTGRES_USER: ${CATEGORY_DB_USER:-medata}
+      POSTGRES_PASSWORD: ${CATEGORY_DB_PASSWORD:-medata}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  lab-test-db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: labtest
+      POSTGRES_USER: ${LABTEST_DB_USER:-medata}
+      POSTGRES_PASSWORD: ${LABTEST_DB_PASSWORD:-medata}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 3s
+      retries: 15

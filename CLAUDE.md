@@ -26,6 +26,7 @@ Medical Laboratory Information System (LIS) — a portfolio project growing out 
 ## Structure (polyglot monorepo)
 
 - `docs/{pl,en}/` — project-wide documentation
-- `services/<name>/` — one directory per standalone service (currently `category`, `lab-test`, `gateway`). **Service-directory contract:** each service ships its own build & run (Java: `mvnw`), its own `docs/{pl,en}/`, its own `CLAUDE.md`, and (from lab 6) its own Dockerfile. No shared parent build — future services may use other languages/stacks.
-- `web/catalog` — the Angular frontend (lab 5; same per-directory contract: own build, docs, CLAUDE.md); `deploy/` (future) — compose/orchestration
+- `services/<name>/` — one directory per standalone service (currently `category`, `lab-test`, `gateway`). **Service-directory contract:** each service ships its own build & run (Java: `mvnw`), its own `docs/{pl,en}/`, its own `CLAUDE.md`, and its own multi-stage Dockerfile (since lab 6). No shared parent build — future services may use other languages/stacks.
+- `web/catalog` — the Angular frontend (lab 5; same per-directory contract: own build, docs, CLAUDE.md, Dockerfile → NGINX)
+- Root `compose.yaml` — the one-command run (`docker compose up --build`): 6 containers, PostgreSQL ×2, only web :4200 + gateway :8080 published; credentials overridable via `.env` (`.env.example`). `deploy/` stays reserved for future orchestration beyond compose.
 - CI: one workflow — a per-service matrix plus a frontend job, triggered by `services/**` and `web/**` paths

@@ -1,9 +1,9 @@
 # Medata — architektura
 
 > Wersja polska. Angielski odpowiednik 1:1: [../en/ARCHITECTURE.md](../en/ARCHITECTURE.md)
-> Stan na: lab 4 (mikroserwisy + gateway). Konwencja §6: zmiana architektury bez aktualizacji diagramu = zmiana nieukończona.
+> Stan na: lab 6 (konteneryzacja). Konwencja §6: zmiana architektury bez aktualizacji diagramu = zmiana nieukończona.
 
-## Widok kontenerów
+## Widok kontenerów (tryb deweloperski)
 
 ```mermaid
 flowchart LR
@@ -25,7 +25,26 @@ flowchart LR
     PUB -. "zdarzenia PUT/DELETE /internal/categories/id" .-> LTC
 ```
 
-Każdy serwis ma **prywatną** bazę H2 — nie istnieje wspólny schemat ani klucz obcy między serwisami. Spójność utrzymują zdarzenia REST i stałe UUID-y seedu.
+Każdy serwis ma **prywatną** bazę — nie istnieje wspólny schemat ani klucz obcy między serwisami. Spójność utrzymują zdarzenia REST i stałe UUID-y seedu. W trybie deweloperskim bazą jest H2 in-memory; pod Docker Compose ten sam jar rozmawia z PostgreSQL — przełącznikiem są wyłącznie zmienne środowiskowe (patrz niżej).
+
+## Widok runtime (Docker Compose — lab 6)
+
+```mermaid
+flowchart LR
+    Browser((Przegladarka)) -->|":4200"| WEB
+    Client((Klient HTTP - request.http, curl)) -->|":8080"| GW
+    subgraph net [docker compose - jedna siec, DNS po nazwie uslugi]
+        WEB["web - NGINX<br>bundle Angulara + proxy /api -> GATEWAY_URL"]
+        WEB -->|"http://gateway:8080"| GW[gateway :8080]
+        GW -->|"http://category:8081"| CAT[category :8081]
+        GW -->|"http://lab-test:8082"| LT[lab-test :8082]
+        CAT -. "zdarzenia /internal/..." .-> LT
+        CAT --> CATDB[(category-db<br>PostgreSQL 18)]
+        LT --> LTDB[(lab-test-db<br>PostgreSQL 18)]
+    end
+```
+
+Porty na hoście publikują tylko `web` (:4200) i `gateway` (:8080); serwisy i obie bazy są osiągalne **wyłącznie wewnątrz sieci compose** — zasada z labu 4 „wszystko przez gateway" jest teraz egzekwowana przez samą sieć. Wszystkie między-kontenerowe adresy wstrzykuje `compose.yaml` jako zmienne środowiskowe (`GATEWAY_URL`, `CATEGORY_URL`, `LABTEST_URL`, `SPRING_DATASOURCE_*`, `LABTEST_BASE_URL`); obrazy nigdy nie hardkodują adresu i ten sam obraz pojechałby na dowolne środowisko. Spring czyta zmienne środowiskowe ponad `application.properties` (ta sama idea co `ConnectionStrings__X` w ASP.NET Core), NGINX dostaje je przez `envsubst` na szablonie konfiguracji, a trasy gatewaya używają placeholderów `${VAR:default}`, więc tryb deweloperski działa dalej bez żadnych zmiennych.
 
 ## Przepływ zdarzeń (synchronizacja repliki)
 
@@ -97,4 +116,4 @@ Prefiks oznacza bazę (`category` / `labtest`). Replika trzyma minimum potrzebne
 
 ## Plany
 
-Lab 6: Dockerfile per serwis + obraz NGINX dla frontendu (przejmie rolę dev-proxy) + `docker compose up`. Lab 7: discovery, 2 instancje lab-test, load balancing na gatewayu, zewnętrzne bazy, config service.
+Lab 7: discovery service, 2 instancje lab-test za load balancingiem gatewaya, wolumeny baz + migracje schematu, centralny config service — wszystko w Compose.

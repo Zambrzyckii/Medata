@@ -5,23 +5,25 @@
 
 ## Phase
 
-**Lab 5 COMPLETE (9/9 pts), awaiting the commit + `lab-5` tag.** The full stack: the Angular 22 frontend (`web/catalog`, 7 routed CRUD views, dev :4200) → the gateway (:8080) → `category` (:8081) and `lab-test` (:8082) with replica sync over REST events. The whole loop (lists, pre-populated forms, deletion with the event-driven cascade) verified in the browser.
+**Lab 6 COMPLETE (9/9 pts), awaiting the user's review of the Docker layer + the commit with the `lab-6` tag.** `docker compose up --build` starts the entire system from scratch: NGINX serving the Angular bundle (:4200, `/api` proxied to the gateway via env vars) → gateway (:8080) → `category` + `lab-test`, each on its own PostgreSQL 18 container. End-to-end verified: seeds from Postgres, the event-driven replica flow between containers, SPA deep links, services unreachable from the host. The Docker layer was written by Claude on the user's explicit delegation (a recorded one-off exception).
 
 ## What exists
 
-- `services/category` (:8081), `services/lab-test` (:8082), `services/gateway` (:8080) — the lab-4 state (events, replica, routes), unchanged
-- `web/catalog` — Angular 22 standalone/signals/zoneless: `models.ts` (mirrored DTOs), `Api` (`HttpClient`, relative `/api`), 7 view components, typed reactive forms, dev proxy → :8080; ESLint + Prettier
+- `services/category` (:8081), `services/lab-test` (:8082), `services/gateway` (:8080) — the lab-4 state (events, replica, routes) + a multi-stage `Dockerfile` each, a PostgreSQL driver in the service poms, the H2 driver hardcode removed (driver inferred from the JDBC URL), gateway route URIs as `${CATEGORY_URL:…}`/`${LABTEST_URL:…}` placeholders
+- `web/catalog` — Angular 22 standalone/signals/zoneless, 7 views, typed reactive forms; + `Dockerfile` (Node build → NGINX) and `nginx/default.conf.template` (envsubst: `GATEWAY_URL`, `NGINX_PORT`; SPA fallback)
+- Root `compose.yaml` — 6 containers (web, gateway, category, lab-test, category-db, lab-test-db), Postgres healthchecks, only web :4200 and gateway :8080 published; `.env.example` for credential overrides
 - Per module: `docs/{pl,en}/README.md` + `CLAUDE.md` (4 modules: 3 services + the frontend)
-- `docs/pl|en/`: VISION, CONVENTIONS, DECISIONS, STATE, CHANGELOG, ARCHITECTURE (4 containers + event sequence + ERD), `adr/001–003`, cheat sheets `labs/lab-1..5.md`
+- `docs/pl|en/`: VISION, CONVENTIONS, DECISIONS, STATE, CHANGELOG, ARCHITECTURE (dev view + compose runtime view + event sequence + ERD), `adr/001–003`, cheat sheets `labs/lab-1..6.md`
 - Root: `CLAUDE.md`, README ×2, `.editorconfig`, `.gitignore`, `.github/workflows/build.yml` (3-service matrix + a frontend job)
-- GitHub repo: `Zambrzyckii/medata` (main + tags `lab-1`–`lab-4`; `lab-5` after the commit)
+- GitHub repo: `Zambrzyckii/medata` (main + tags `lab-1`–`lab-5`; `lab-6` after the commit)
 
 ## Development environment
 
 - Backend: OpenJDK 27 (`--release 25`), Lombok 1.18.48 (pinned), Maven 3.9.16 + a wrapper per service
 - Frontend: Node.js 26.10, npm 12, Angular CLI 22; code typed by the user by hand (skeletons: `ng new`/delegations on explicit request)
+- Containers: Docker 29.8.2 + Compose 5.6.0; dev mode (H2, hot reload) still works without Docker
 - IDE: IntelliJ IDEA **Community** (SDK java-27-openjdk); note: the VS Code Java plugin compiles with ECJ into `target/` — after weird startup errors run `./mvnw clean`
 
 ## Next step
 
-Commit + `lab-5` tag (done by the user). Then **lab 6 (9 pts): containerization** — a Dockerfile per service (Eclipse Temurin, env-based config), a frontend image on NGINX (Angular build + `/api` proxy configured by environment variables), `docker compose up` wiring everything; optionally (+2 pts within the 9) external databases. Lab 6 conventions: `.env.example`, the full one-command rule. To check: `docker` and `docker compose` in the environment.
+The user reviews the delegated Docker layer, then the commit + `lab-6` tag. Then **lab 7 (7 pts): advanced deployment** — a discovery service with registration, 2 lab-test instances with gateway load balancing (`lb://`), external databases with volumes and schema migrations at startup, a central config service; everything stays inside Compose.

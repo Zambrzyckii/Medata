@@ -9,16 +9,23 @@ Właściciel badań laboratoryjnych (`LabTest`) wraz z **repliką** kategorii (`
 ## Uruchomienie
 
 ```bash
-./mvnw spring-boot:run          # start na :8082
+./mvnw spring-boot:run          # tryb dev na :8082 (H2 in-memory)
 ./mvnw spotless:apply verify    # format + pełny build
 ```
 
-## Konfiguracja (`src/main/resources/application.properties`)
+W kontenerach serwis startuje z całosystemowego `compose.yaml` w roocie repo (`docker compose up --build`); tutejszy multi-stage `Dockerfile` buduje jar własnym wrapperem serwisu i uruchamia go na JRE Eclipse Temurin 25.
 
-| Klucz | Wartość | Po co |
+## Konfiguracja
+
+Defaulty w `src/main/resources/application.properties`; każdy klucz można nadpisać zmienną środowiskową (relaxed binding Springa) — i dokładnie to robi `compose.yaml`:
+
+| Właściwość | Default | Nadpisanie env (compose) |
 |---|---|---|
-| `server.port` | `8082` | stały port serwisu |
-| `spring.datasource.url` | `jdbc:h2:mem:labtest` | prywatna baza in-memory |
+| `server.port` | `8082` | — (stały; `EXPOSE 8082`, niepublikowany na host) |
+| `spring.datasource.url` | `jdbc:h2:mem:labtest` | `SPRING_DATASOURCE_URL=jdbc:postgresql://lab-test-db:5432/labtest` |
+| `spring.datasource.username` / `password` | `sa` / puste | `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` |
+
+Nigdzie nie ma `driver-class-name`: Boot wnioskuje sterownik z URL-a JDBC. `ddl-auto=create-drop` obowiązuje na obu silnikach (schemat + seed per start; migracje wejdą w labie 7).
 
 ## Model danych
 
