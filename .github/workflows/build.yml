@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [category, lab-test]
+        service: [category, lab-test, gateway]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4

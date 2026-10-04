@@ -8,20 +8,22 @@
 
 ## Status
 
-Lab 3 complete — the test catalog as a REST API (Spring MVC, DTOs, HTTP codes, Swagger UI at `/swagger-ui.html`, examples in `catalog/request.http`). Live status: [docs/en/STATE.md](docs/en/STATE.md).
+Lab 4 complete — microservices `services/category` (:8081) and `services/lab-test` (:8082) with REST event sync behind Spring Cloud Gateway (:8080, the only public entry). Live status: [docs/en/STATE.md](docs/en/STATE.md).
 
 ## Quick start
 
 ```bash
-cd catalog && ./mvnw compile && java -cp target/classes com.medata.catalog.Main
+cd services/category && ./mvnw spring-boot:run    # :8081
+cd services/lab-test && ./mvnw spring-boot:run    # :8082 (second terminal)
+cd services/gateway && ./mvnw spring-boot:run     # :8080 (third terminal) — talk only to this one
 ```
 
 Eventually this section will converge to a single `docker compose up` (one-command rule — see conventions).
 
 ## Requirements
 
-- JDK 25 or newer (developed on OpenJDK 26)
-- Maven not required — the repo ships a Maven Wrapper (`catalog/mvnw`)
+- JDK 25 or newer (developed on OpenJDK 27; Lombok pinned at 1.18.48 for JDK 27 support)
+- Maven not required — every service ships its own Maven Wrapper (`services/<name>/mvnw`)
 
 ## Documentation
 

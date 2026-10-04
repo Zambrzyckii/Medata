@@ -26,12 +26,11 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString(exclude = "labTests")
 @EqualsAndHashCode(exclude = "labTests")
-public class TestCategory implements Comparable<TestCategory> {
+public class TestCategory {
 
-  @Id @Builder.Default private UUID id = UUID.randomUUID();
+  @Id private UUID id;
 
   private String name;
-  private boolean requiresFasting;
 
   @OneToMany(
       mappedBy = "category",
@@ -40,14 +39,4 @@ public class TestCategory implements Comparable<TestCategory> {
       orphanRemoval = true)
   @Builder.Default
   private List<LabTest> labTests = new ArrayList<>();
-
-  public void addLabTest(LabTest labTest) {
-    labTests.add(labTest);
-    labTest.setCategory(this);
-  }
-
-  @Override
-  public int compareTo(TestCategory other) {
-    return name.compareTo(other.name);
-  }
 }

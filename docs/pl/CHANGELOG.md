@@ -3,6 +3,8 @@
 > Wersja polska. Angielski odpowiednik 1:1: [../en/CHANGELOG.md](../en/CHANGELOG.md)
 > Wpisy na poziomie kamieni milowych, najnowsze na górze.
 
+- **2026-10-04** — **Lab 4 ukończony (8/8 pkt)**: monolit podzielony na `services/category` (:8081) i `services/lab-test` (:8082) z prywatnymi H2 i repliką kategorii (`id`+`name`); zdarzenia REST add/remove (`PUT`/`DELETE /internal/categories/{id}`, idempotentny upsert, best-effort z WARN); `services/gateway` (:8080, Spring Cloud Gateway WebFlux, BOM 2025.1.3) z trasami od najszczegółowszej i `/internal` bez trasy; CI matrix × 3 serwisy; po aktualizacji systemu do JDK 27 Lombok przypięty na 1.18.48. Aktywowana konwencja labu 4: docs modułu + `CLAUDE.md` per serwis, diagram sekwencji zdarzeń w ARCHITECTURE. Ściąga: `labs/lab-4.md`.
+
 - **2026-09-27** — **Lab 3 ukończony (8/8 pkt)**: REST API — 6 DTO (create/update, read, list per encja), kontrolery z hierarchicznymi adresami i kodami 200/201/204/400/404, rozróżnienie pustej i nieistniejącej kategorii, kaskadowe usuwanie, `GlobalExceptionHandler` (walidacja → 400), `request.http` (17 żądań), springdoc/Swagger UI. `ConsoleRunner` usunięty (żyje w tagu `lab-2`). Ściąga: `labs/lab-3.md`.
 
 - **2026-09-27** — **Lab 2 ukończony (8/8 pkt)**: `catalog` przebudowany na Spring Boot 4.0.8 — encje JPA (H2 in-memory, UUID klienta), repozytoria, serwisy z walidacją danych wejściowych, initializer, konsolowy runner CRUD. Aktywowane konwencje labu 2: `ARCHITECTURE.md` (Mermaid: kontenery + ERD), ADR-y 001–003, CI GitHub Actions. Ściąga: `labs/lab-2.md`.

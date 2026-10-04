@@ -3,6 +3,7 @@ package com.medata.category.controller;
 import com.medata.category.dto.TestCategoryCreateUpdateDto;
 import com.medata.category.dto.TestCategoryListDto;
 import com.medata.category.dto.TestCategoryReadDto;
+import com.medata.category.event.CategoryEventPublisher;
 import com.medata.category.model.TestCategory;
 import com.medata.category.service.TestCategoryService;
 import java.net.URI;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestCategoryController {
 
   private final TestCategoryService testCategoryService;
+  private final CategoryEventPublisher categoryEventPublisher;
 
   @GetMapping
   public TestCategoryListDto getCategories() {
@@ -44,6 +46,7 @@ public class TestCategoryController {
     TestCategory category =
         TestCategory.builder().name(dto.name()).requiresFasting(dto.requiresFasting()).build();
     TestCategory saved = testCategoryService.save(category);
+    categoryEventPublisher.publishCreated(saved.getId(), saved.getName());
     return ResponseEntity.created(URI.create("/api/categories/" + saved.getId()))
         .body(TestCategoryReadDto.fromEntity(saved));
   }
@@ -70,6 +73,7 @@ public class TestCategoryController {
         .map(
             category -> {
               testCategoryService.deleteById(id);
+              categoryEventPublisher.publishDeleted(id);
               return ResponseEntity.noContent().<Void>build();
             })
         .orElse(ResponseEntity.notFound().build());

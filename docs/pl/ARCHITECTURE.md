@@ -1,55 +1,86 @@
 # Medata — architektura
 
 > Wersja polska. Angielski odpowiednik 1:1: [../en/ARCHITECTURE.md](../en/ARCHITECTURE.md)
-> Stan na: lab 3 (aplikacja webowa REST). Konwencja §6: zmiana architektury bez aktualizacji diagramu = zmiana nieukończona.
+> Stan na: lab 4 (mikroserwisy + gateway). Konwencja §6: zmiana architektury bez aktualizacji diagramu = zmiana nieukończona.
 
 ## Widok kontenerów
 
 ```mermaid
 flowchart LR
-    Client((Klient HTTP - przegladarka, request.http, curl)) -->|JSON| Controllers
-    subgraph app [catalog - Spring Boot 4.0.8, Java 25, Tomcat :8080]
-        Controllers[TestCategoryController / LabTestController + GlobalExceptionHandler] --> Services
-        Init[SampleDataInitializer] --> Services
-        Services[TestCategoryService / LabTestService - walidacja biznesowa] --> Repos[Repozytoria Spring Data JPA]
-        Repos --> H2[(H2 in-memory)]
-        Swagger[springdoc - Swagger UI] -.dokumentuje.-> Controllers
+    Client((Klient HTTP - przegladarka, request.http, curl)) -->|"JSON :8080"| GW
+    subgraph gw [gateway - Spring Cloud Gateway WebFlux, Netty :8080]
+        GW[trasy Path= od najszczegolowszej]
     end
+    GW -->|"/api/categories/**"| CATC
+    GW -->|"/api/categories/*/tests oraz /api/tests/**"| LTC
+    subgraph cat [category - Spring Boot MVC, Tomcat :8081]
+        CATC[TestCategoryController] --> CATS[TestCategoryService] --> CATDB[(H2 in-mem: category)]
+        CATC --> PUB[CategoryEventPublisher - RestClient]
+    end
+    subgraph lt [lab-test - Spring Boot MVC, Tomcat :8082]
+        LTC[LabTestController + InternalCategoryController] --> LTS[LabTestService / TestCategoryService] --> LTDB[(H2 in-mem: labtest)]
+    end
+    PUB -. "zdarzenia PUT/DELETE /internal/categories/id" .-> LTC
 ```
 
-## Warstwy
+Każdy serwis ma **prywatną** bazę H2 — nie istnieje wspólny schemat ani klucz obcy między serwisami. Spójność utrzymują zdarzenia REST i stałe UUID-y seedu.
 
-Kontrolery REST (mapowanie encja↔DTO, kody HTTP) → serwisy (delegacja + walidacja) → repozytoria → H2. Wyjątki walidacji (`IllegalArgumentException`) zamienia na `400` globalny `GlobalExceptionHandler`. Sesja JPA żyje przez całe żądanie (Open Session In View — domyślne w Spring Boot), dzięki czemu mapowanie leniwych relacji w kontrolerze działa.
+## Przepływ zdarzeń (synchronizacja repliki)
 
-## API (REST, JSON)
+```mermaid
+sequenceDiagram
+    participant K as Klient
+    participant G as gateway :8080
+    participant C as category :8081
+    participant L as lab-test :8082
+    K->>G: POST /api/categories {name,...}
+    G->>C: POST /api/categories
+    C->>C: INSERT do H2 category
+    C-)L: PUT /internal/categories/{id} {name}
+    L->>L: idempotentny upsert repliki
+    C-->>G: 201 Created
+    G-->>K: 201 Created
+    K->>G: DELETE /api/categories/{id}
+    G->>C: DELETE /api/categories/{id}
+    C->>C: DELETE z H2 category
+    C-)L: DELETE /internal/categories/{id}
+    L->>L: usuniecie repliki + kaskada badan
+    C-->>G: 204 No Content
+    G-->>K: 204 No Content
+```
 
-| Endpoint | Opis | Kody |
+Wysyłka jest **best-effort**: błąd sieci nie psuje operacji na kategorii (`try/catch` → WARN w logu). Handlery w `lab-test` są **idempotentne** (PUT = upsert, DELETE nieistniejącej → 204), więc powtórzone zdarzenie nie szkodzi. Zmiana nazwy kategorii NIE jest propagowana (świadoma luka — instrukcja wymaga zdarzeń tylko przy dodaniu/usunięciu).
+
+## Routing (gateway)
+
+| Kolejność | Predykat `Path=` | Cel |
 |---|---|---|
-| `GET /api/categories` | Lista kategorii (id + nazwa) | 200 |
-| `POST /api/categories` | Tworzy kategorię | 201 |
-| `GET /api/categories/{id}` | Pełne dane kategorii | 200, 404 |
-| `PUT /api/categories/{id}` | Aktualizuje kategorię | 204, 404 |
-| `DELETE /api/categories/{id}` | Usuwa kategorię **wraz z badaniami** (kaskada) | 204, 404 |
-| `GET /api/categories/{categoryId}/tests` | Badania kategorii (pusta → 200 i `[]`; nieistniejąca → 404) | 200, 404 |
-| `POST /api/categories/{categoryId}/tests` | Dodaje badanie do kategorii (jedyna droga tworzenia badań) | 201, 400, 404 |
-| `GET /api/tests` | Lista wszystkich badań (id + nazwa) | 200 |
-| `GET /api/tests/{id}` | Pełne dane badania (kategoria spłaszczona do nazwy) | 200, 404 |
-| `PUT /api/tests/{id}` | Aktualizuje badanie | 204, 400, 404 |
-| `DELETE /api/tests/{id}` | Usuwa badanie | 204, 404 |
+| 0 | `/api/categories/*/tests` | lab-test :8082 |
+| 1 | `/api/categories/**` | category :8081 |
+| 2 | `/api/tests/**` | lab-test :8082 |
 
-Dokumentacja żywa: Swagger UI `http://localhost:8080/swagger-ui.html`; wykonywalne przykłady: `catalog/request.http`.
+Kolejność od najszczegółowszej — catch-all kategorii przechwyciłby żądania o badania. `/internal/**` celowo **bez trasy**: API zdarzeń jest nieosiągalne z zewnątrz. Wykonywalne przykłady: `services/gateway/request.http` (wszystko przez :8080).
 
-## Model danych (ERD)
+## API per serwis
+
+- **category (:8081):** `GET/POST /api/categories`, `GET/PUT/DELETE /api/categories/{id}` — semantyka i kody jak w labie 3; POST i DELETE dodatkowo publikują zdarzenie do lab-test.
+- **lab-test (:8082):** `GET /api/tests`, `GET/PUT/DELETE /api/tests/{id}`, `GET/POST /api/categories/{categoryId}/tests` oraz wewnętrzne `PUT/DELETE /internal/categories/{id}`. Szczegółowe tabele: `services/<nazwa>/docs/pl/README.md`.
+
+## Model danych (ERD) — dwie prywatne bazy
 
 ```mermaid
 erDiagram
-    TEST_CATEGORIES ||--o{ LAB_TESTS : zawiera
-    TEST_CATEGORIES {
-        uuid id PK
+    CATEGORY__TEST_CATEGORIES {
+        uuid id PK "seed: stale UUID-y"
         varchar name
         boolean requires_fasting
     }
-    LAB_TESTS {
+    LABTEST__TEST_CATEGORIES ||--o{ LABTEST__LAB_TESTS : zawiera
+    LABTEST__TEST_CATEGORIES {
+        uuid id PK "replika: id rowne oryginalowi"
+        varchar name
+    }
+    LABTEST__LAB_TESTS {
         uuid id PK
         varchar name
         varchar unit
@@ -60,8 +91,8 @@ erDiagram
     }
 ```
 
-Relacja 1:N dwustronna w kodzie, w bazie klucz obcy `category_id`; obie strony leniwe; usunięcie kategorii kaskaduje na badania (`CascadeType.REMOVE` + `orphanRemoval`).
+Prefiks oznacza bazę (`category` / `labtest`). Replika trzyma minimum potrzebne do relacji i DTO; kaskada `REMOVE` + `orphanRemoval` działa lokalnie w bazie labtest.
 
 ## Plany
 
-Lab 4 rozetnie aplikację na dwa mikroserwisy (kategorie, badania) + gateway — diagramy zostaną wtedy zaktualizowane.
+Lab 5: frontend Angular (przez gateway). Lab 6: Dockerfile per serwis + `docker compose up`. Lab 7: discovery, 2 instancje lab-test, load balancing na gatewayu, zewnętrzne bazy, config service.

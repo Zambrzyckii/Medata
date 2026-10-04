@@ -5,6 +5,7 @@ import com.medata.labtest.model.TestCategory;
 import com.medata.labtest.service.LabTestService;
 import com.medata.labtest.service.TestCategoryService;
 import java.math.BigDecimal;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -15,19 +16,24 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SampleDataInitializer implements CommandLineRunner {
 
+  public static final UUID HEMATOLOGY_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+  public static final UUID BIOCHEMISTRY_ID =
+      UUID.fromString("22222222-2222-2222-2222-222222222222");
+  public static final UUID HORMONES_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
+
   private final TestCategoryService testCategoryService;
   private final LabTestService labTestService;
 
   @Override
   public void run(String... args) {
     TestCategory hematology =
-        TestCategory.builder().name("Hematology").requiresFasting(false).build();
+        testCategoryService.save(
+            TestCategory.builder().id(HEMATOLOGY_ID).name("Hematology").build());
     TestCategory biochemistry =
-        TestCategory.builder().name("Biochemistry").requiresFasting(true).build();
-    TestCategory hormones = TestCategory.builder().name("Hormones").requiresFasting(false).build();
-    testCategoryService.save(hematology);
-    testCategoryService.save(biochemistry);
-    testCategoryService.save(hormones);
+        testCategoryService.save(
+            TestCategory.builder().id(BIOCHEMISTRY_ID).name("Biochemistry").build());
+    TestCategory hormones =
+        testCategoryService.save(TestCategory.builder().id(HORMONES_ID).name("Hormones").build());
 
     saveTest(hematology, "Hemoglobin", "g/dL", 12.0, 17.5, "12.00");
     saveTest(hematology, "White blood cells", "10^9/L", 4.0, 10.0, "15.00");
@@ -51,8 +57,8 @@ public class SampleDataInitializer implements CommandLineRunner {
             .referenceMin(referenceMin)
             .referenceMax(referenceMax)
             .price(new BigDecimal(price))
+            .category(category)
             .build();
-    category.addLabTest(labTest);
     labTestService.save(labTest);
   }
 }

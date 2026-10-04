@@ -3,6 +3,8 @@
 > English version. Polish 1:1 counterpart: [../pl/CHANGELOG.md](../pl/CHANGELOG.md)
 > Milestone-level entries, newest first.
 
+- **2026-10-04** — **Lab 4 complete (8/8 pts)**: the monolith split into `services/category` (:8081) and `services/lab-test` (:8082) with private H2s and a category replica (`id`+`name`); REST add/remove events (`PUT`/`DELETE /internal/categories/{id}`, idempotent upsert, best-effort with WARN); `services/gateway` (:8080, Spring Cloud Gateway WebFlux, BOM 2025.1.3) with most-specific-first routes and no route for `/internal`; CI matrix × 3 services; Lombok pinned at 1.18.48 after the system's JDK 27 upgrade. Lab 4 convention activated: module docs + per-service `CLAUDE.md`, event sequence diagram in ARCHITECTURE. Cheat sheet: `labs/lab-4.md`.
+
 - **2026-09-27** — **Lab 3 complete (8/8 pts)**: REST API — 6 DTOs (create/update, read, list per entity), controllers with hierarchical routes and 200/201/204/400/404 codes, empty vs non-existing category distinction, cascade delete, `GlobalExceptionHandler` (validation → 400), `request.http` (17 requests), springdoc/Swagger UI. `ConsoleRunner` deleted (lives in the `lab-2` tag). Cheat sheet: `labs/lab-3.md`.
 
 - **2026-09-27** — **Lab 2 complete (8/8 pts)**: `catalog` rebuilt on Spring Boot 4.0.8 — JPA entities (in-memory H2, client UUIDs), repositories, services with input validation, initializer, console CRUD runner. Lab 2 conventions activated: `ARCHITECTURE.md` (Mermaid: containers + ERD), ADRs 001–003, GitHub Actions CI. Cheat sheet: `labs/lab-2.md`.
