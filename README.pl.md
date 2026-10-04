@@ -8,14 +8,15 @@
 
 ## Status
 
-Lab 4 ukończony — mikroserwisy `services/category` (:8081) i `services/lab-test` (:8082) z synchronizacją zdarzeniami REST za Spring Cloud Gateway (:8080, jedyne publiczne wejście). Bieżący status: [docs/pl/STATE.md](docs/pl/STATE.md).
+Lab 5 ukończony — frontend Angular (`web/catalog`) z siedmioma routowanymi widokami CRUD na mikroserwisach labu 4 (`category` :8081, `lab-test` :8082) za Spring Cloud Gateway (:8080). Bieżący status: [docs/pl/STATE.md](docs/pl/STATE.md).
 
 ## Szybki start
 
 ```bash
 cd services/category && ./mvnw spring-boot:run    # :8081
 cd services/lab-test && ./mvnw spring-boot:run    # :8082 (drugi terminal)
-cd services/gateway && ./mvnw spring-boot:run     # :8080 (trzeci terminal) — rozmawiaj tylko z tym
+cd services/gateway && ./mvnw spring-boot:run     # :8080 (trzeci terminal) — wejście API
+cd web/catalog && npm start                       # :4200 (czwarty terminal) — to otwórz w przeglądarce
 ```
 
 Docelowo ta sekcja zbiegnie do pojedynczego `docker compose up` (zasada jednej komendy — patrz konwencje).
@@ -24,6 +25,7 @@ Docelowo ta sekcja zbiegnie do pojedynczego `docker compose up` (zasada jednej k
 
 - JDK 25 lub nowsze (rozwijane na OpenJDK 27; Lombok przypięty na 1.18.48 ze wsparciem JDK 27)
 - Maven niewymagany — każdy serwis ma własny Maven Wrapper (`services/<nazwa>/mvnw`)
+- Node.js 20+ z npm (frontend; rozwijane na Node 26)
 
 ## Dokumentacja
 

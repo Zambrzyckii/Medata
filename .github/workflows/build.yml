@@ -3,9 +3,9 @@ name: Build
 on:
   push:
     branches: [main]
-    paths: ['services/**', '.github/workflows/build.yml']
+    paths: ['services/**', 'web/**', '.github/workflows/build.yml']
   pull_request:
-    paths: ['services/**', '.github/workflows/build.yml']
+    paths: ['services/**', 'web/**', '.github/workflows/build.yml']
 
 jobs:
   build:
@@ -23,3 +23,23 @@ jobs:
       - name: Build ${{ matrix.service }}
         run: ./mvnw --batch-mode verify
         working-directory: services/${{ matrix.service }}
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/catalog/package-lock.json
+      - name: Install
+        run: npm ci
+        working-directory: web/catalog
+      - name: Lint
+        run: npx ng lint
+        working-directory: web/catalog
+      - name: Build
+        run: npm run build
+        working-directory: web/catalog
+

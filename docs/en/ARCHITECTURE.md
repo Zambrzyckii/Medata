@@ -7,7 +7,9 @@
 
 ```mermaid
 flowchart LR
-    Client((HTTP client - browser, request.http, curl)) -->|"JSON :8080"| GW
+    Browser((Browser)) --> FE[web/catalog - Angular 22, dev :4200]
+    FE -->|"/api via dev proxy"| GW
+    Client((HTTP client - request.http, curl)) -->|"JSON :8080"| GW
     subgraph gw [gateway - Spring Cloud Gateway WebFlux, Netty :8080]
         GW[Path= routes, most specific first]
     end
@@ -95,4 +97,4 @@ The prefix names the database (`category` / `labtest`). The replica holds the mi
 
 ## Plans
 
-Lab 5: Angular frontend (through the gateway). Lab 6: a Dockerfile per service + `docker compose up`. Lab 7: discovery, 2 lab-test instances, load balancing at the gateway, external databases, a config service.
+Lab 6: a Dockerfile per service + an NGINX image for the frontend (taking over the dev-proxy role) + `docker compose up`. Lab 7: discovery, 2 lab-test instances, load balancing at the gateway, external databases, a config service.

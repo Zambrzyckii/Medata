@@ -27,5 +27,5 @@ Medical Laboratory Information System (LIS) — a portfolio project growing out 
 
 - `docs/{pl,en}/` — project-wide documentation
 - `services/<name>/` — one directory per standalone service (currently `category`, `lab-test`, `gateway`). **Service-directory contract:** each service ships its own build & run (Java: `mvnw`), its own `docs/{pl,en}/`, its own `CLAUDE.md`, and (from lab 6) its own Dockerfile. No shared parent build — future services may use other languages/stacks.
-- `web/` (future) — frontends; `deploy/` (future) — compose/orchestration
-- CI: one workflow with a per-service matrix, triggered by `services/**` paths
+- `web/catalog` — the Angular frontend (lab 5; same per-directory contract: own build, docs, CLAUDE.md); `deploy/` (future) — compose/orchestration
+- CI: one workflow — a per-service matrix plus a frontend job, triggered by `services/**` and `web/**` paths

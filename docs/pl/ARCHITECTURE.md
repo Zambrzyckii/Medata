@@ -7,7 +7,9 @@
 
 ```mermaid
 flowchart LR
-    Client((Klient HTTP - przegladarka, request.http, curl)) -->|"JSON :8080"| GW
+    Browser((Przegladarka)) --> FE[web/catalog - Angular 22, dev :4200]
+    FE -->|"/api przez dev-proxy"| GW
+    Client((Klient HTTP - request.http, curl)) -->|"JSON :8080"| GW
     subgraph gw [gateway - Spring Cloud Gateway WebFlux, Netty :8080]
         GW[trasy Path= od najszczegolowszej]
     end
@@ -95,4 +97,4 @@ Prefiks oznacza bazę (`category` / `labtest`). Replika trzyma minimum potrzebne
 
 ## Plany
 
-Lab 5: frontend Angular (przez gateway). Lab 6: Dockerfile per serwis + `docker compose up`. Lab 7: discovery, 2 instancje lab-test, load balancing na gatewayu, zewnętrzne bazy, config service.
+Lab 6: Dockerfile per serwis + obraz NGINX dla frontendu (przejmie rolę dev-proxy) + `docker compose up`. Lab 7: discovery, 2 instancje lab-test, load balancing na gatewayu, zewnętrzne bazy, config service.

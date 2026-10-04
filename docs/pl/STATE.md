@@ -5,23 +5,23 @@
 
 ## Faza
 
-**Lab 4 UKOŃCZONY (8/8 pkt), oczekuje na commit + tag `lab-4`.** System to trzy niezależne aplikacje: `services/category` (:8081) i `services/lab-test` (:8082) z prywatnymi H2 i repliką kategorii synchronizowaną zdarzeniami REST (idempotentny upsert, best-effort z WARN, kaskada badań) oraz `services/gateway` (:8080, Spring Cloud Gateway WebFlux) — jedyne publiczne wejście; `/internal/**` bez trasy. Całość zweryfikowana e2e przez :8080, łącznie z testem odporności na leżący lab-test.
+**Lab 5 UKOŃCZONY (9/9 pkt), oczekuje na commit + tag `lab-5`.** Pełny stos: frontend Angular 22 (`web/catalog`, 7 routowanych widoków CRUD, dev :4200) → gateway (:8080) → `category` (:8081) i `lab-test` (:8082) z synchronizacją repliki zdarzeniami REST. Cała pętla (listy, formularze z prepopulowaniem, usuwanie z kaskadą przez zdarzenie) zweryfikowana w przeglądarce.
 
 ## Co istnieje
 
-- `services/category` (:8081) — kategorie: CRUD REST, `GlobalExceptionHandler`, springdoc, seed o stałych UUID-ach; `CategoryEventPublisher` (`RestClient`, zdarzenia przy POST/DELETE)
-- `services/lab-test` (:8082) — badania + replika (`id`+`name`): pełny stos LabTest, `PUT`/`DELETE /internal/categories/{id}` (idempotentne), kaskada, springdoc, seed pod stałymi UUID-ami
-- `services/gateway` (:8080) — trasy `Path=` od najszczegółowszej (tabela w `docs/`), `request.http` całego systemu
-- Per serwis: `docs/{pl,en}/README.md` (szablon modułu) + `CLAUDE.md` + własny wrapper Mavena
-- `docs/pl|en/`: VISION, CONVENTIONS, DECISIONS, STATE, CHANGELOG, ARCHITECTURE (3 kontenery + sekwencja zdarzeń + ERD dwóch baz), `adr/001–003` (ADR-002 zweryfikowany), ściągi `labs/lab-1..4.md`
-- Root: `CLAUDE.md`, README ×2, `.editorconfig`, `.gitignore`, `.github/workflows/build.yml` (matrix `category`/`lab-test`/`gateway`)
-- Repo GitHub: `Zambrzyckii/medata` (main + tagi `lab-1`–`lab-3`; `lab-4` po commicie)
+- `services/category` (:8081), `services/lab-test` (:8082), `services/gateway` (:8080) — stan z labu 4 (zdarzenia, replika, trasy), bez zmian
+- `web/catalog` — Angular 22 standalone/signals/zoneless: `models.ts` (lustrzane DTO), `Api` (`HttpClient`, względny `/api`), 7 komponentów-widoków, typed reactive forms, dev-proxy → :8080; ESLint + Prettier
+- Per moduł: `docs/{pl,en}/README.md` + `CLAUDE.md` (4 moduły: 3 serwisy + frontend)
+- `docs/pl|en/`: VISION, CONVENTIONS, DECISIONS, STATE, CHANGELOG, ARCHITECTURE (4 kontenery + sekwencja zdarzeń + ERD), `adr/001–003`, ściągi `labs/lab-1..5.md`
+- Root: `CLAUDE.md`, README ×2, `.editorconfig`, `.gitignore`, `.github/workflows/build.yml` (matrix 3 serwisów + job frontendu)
+- Repo GitHub: `Zambrzyckii/medata` (main + tagi `lab-1`–`lab-4`; `lab-5` po commicie)
 
 ## Środowisko deweloperskie
 
-- OpenJDK 27 (`--release 25`; rolling-aktualizacja Archa z 3.10), Lombok 1.18.48 (pin w pomach, wsparcie JDK 27), Maven 3.9.16 + wrapper per serwis; kod pisze użytkownik ręcznie (wyjątki na jawne zlecenie: walidacja labu 2, restrukturyzacja `services/`, fix seedu partii 1)
-- IDE: IntelliJ IDEA **Community** (Project SDK: java-27-openjdk) — `request.http` przez VS Code REST Client; zasugerowana darmowa licencja studencka JetBrains
+- Backend: OpenJDK 27 (`--release 25`), Lombok 1.18.48 (pin), Maven 3.9.16 + wrapper per serwis
+- Frontend: Node.js 26.10, npm 12, Angular CLI 22; kod pisze użytkownik ręcznie (szkielety: `ng new`/delegacje na jawne zlecenie)
+- IDE: IntelliJ IDEA **Community** (SDK java-27-openjdk); uwaga: wtyczka Javy w VS Code kompiluje ECJ-em do `target/` — po dziwnych błędach startu `./mvnw clean`
 
 ## Następny krok
 
-Commit + tag `lab-4` (wykonuje użytkownik). Potem **lab 5 (9 pkt): frontend Angular** — 7 widoków (listy, formularze, szczegóły kategorii i badań) z routingiem, cały ruch przez gateway (:8080); nowy katalog `web/`, aktywacja konwencji ESLint + Prettier; do sprawdzenia: Node.js w środowisku.
+Commit + tag `lab-5` (wykonuje użytkownik). Potem **lab 6 (9 pkt): konteneryzacja** — Dockerfile per serwis (Eclipse Temurin, konfiguracja przez env), obraz frontendu na NGINX (build Angulara + proxy `/api` konfigurowane zmiennymi środowiskowymi), `docker compose up` spinający całość; opcjonalnie (+2 pkt w ramach 9) zewnętrzne bazy danych. Konwencje labu 6: `.env.example`, pełna zasada jednej komendy. Do sprawdzenia: `docker` i `docker compose` w środowisku.

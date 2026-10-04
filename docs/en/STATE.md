@@ -5,23 +5,23 @@
 
 ## Phase
 
-**Lab 4 COMPLETE (8/8 pts), awaiting the commit + `lab-4` tag.** The system is three independent applications: `services/category` (:8081) and `services/lab-test` (:8082) with private H2s and a category replica synced by REST events (idempotent upsert, best-effort with WARN, test cascade), plus `services/gateway` (:8080, Spring Cloud Gateway WebFlux) — the only public entry; `/internal/**` has no route. Everything verified e2e through :8080, including the resilience test with lab-test down.
+**Lab 5 COMPLETE (9/9 pts), awaiting the commit + `lab-5` tag.** The full stack: the Angular 22 frontend (`web/catalog`, 7 routed CRUD views, dev :4200) → the gateway (:8080) → `category` (:8081) and `lab-test` (:8082) with replica sync over REST events. The whole loop (lists, pre-populated forms, deletion with the event-driven cascade) verified in the browser.
 
 ## What exists
 
-- `services/category` (:8081) — categories: REST CRUD, `GlobalExceptionHandler`, springdoc, fixed-UUID seed; `CategoryEventPublisher` (`RestClient`, events on POST/DELETE)
-- `services/lab-test` (:8082) — tests + replica (`id`+`name`): the full LabTest stack, `PUT`/`DELETE /internal/categories/{id}` (idempotent), cascade, springdoc, seed under the fixed UUIDs
-- `services/gateway` (:8080) — `Path=` routes, most specific first (table in `docs/`), the whole system's `request.http`
-- Per service: `docs/{pl,en}/README.md` (module template) + `CLAUDE.md` + its own Maven wrapper
-- `docs/pl|en/`: VISION, CONVENTIONS, DECISIONS, STATE, CHANGELOG, ARCHITECTURE (3 containers + event sequence + two-database ERD), `adr/001–003` (ADR-002 verified), cheat sheets `labs/lab-1..4.md`
-- Root: `CLAUDE.md`, README ×2, `.editorconfig`, `.gitignore`, `.github/workflows/build.yml` (matrix `category`/`lab-test`/`gateway`)
-- GitHub repo: `Zambrzyckii/medata` (main + tags `lab-1`–`lab-3`; `lab-4` after the commit)
+- `services/category` (:8081), `services/lab-test` (:8082), `services/gateway` (:8080) — the lab-4 state (events, replica, routes), unchanged
+- `web/catalog` — Angular 22 standalone/signals/zoneless: `models.ts` (mirrored DTOs), `Api` (`HttpClient`, relative `/api`), 7 view components, typed reactive forms, dev proxy → :8080; ESLint + Prettier
+- Per module: `docs/{pl,en}/README.md` + `CLAUDE.md` (4 modules: 3 services + the frontend)
+- `docs/pl|en/`: VISION, CONVENTIONS, DECISIONS, STATE, CHANGELOG, ARCHITECTURE (4 containers + event sequence + ERD), `adr/001–003`, cheat sheets `labs/lab-1..5.md`
+- Root: `CLAUDE.md`, README ×2, `.editorconfig`, `.gitignore`, `.github/workflows/build.yml` (3-service matrix + a frontend job)
+- GitHub repo: `Zambrzyckii/medata` (main + tags `lab-1`–`lab-4`; `lab-5` after the commit)
 
 ## Development environment
 
-- OpenJDK 27 (`--release 25`; Arch rolling upgrade of Oct 3), Lombok 1.18.48 (pinned in the poms, JDK 27 support), Maven 3.9.16 + a wrapper per service; code typed by the user by hand (exceptions on explicit request: lab 2 validation, the `services/` restructuring, the batch 1 seed fix)
-- IDE: IntelliJ IDEA **Community** (Project SDK: java-27-openjdk) — `request.http` via VS Code REST Client; free JetBrains student licence suggested
+- Backend: OpenJDK 27 (`--release 25`), Lombok 1.18.48 (pinned), Maven 3.9.16 + a wrapper per service
+- Frontend: Node.js 26.10, npm 12, Angular CLI 22; code typed by the user by hand (skeletons: `ng new`/delegations on explicit request)
+- IDE: IntelliJ IDEA **Community** (SDK java-27-openjdk); note: the VS Code Java plugin compiles with ECJ into `target/` — after weird startup errors run `./mvnw clean`
 
 ## Next step
 
-Commit + `lab-4` tag (done by the user). Then **lab 5 (9 pts): the Angular frontend** — 7 views (lists, forms, category and test details) with routing, all traffic through the gateway (:8080); a new `web/` directory, ESLint + Prettier convention activation; to check: Node.js in the environment.
+Commit + `lab-5` tag (done by the user). Then **lab 6 (9 pts): containerization** — a Dockerfile per service (Eclipse Temurin, env-based config), a frontend image on NGINX (Angular build + `/api` proxy configured by environment variables), `docker compose up` wiring everything; optionally (+2 pts within the 9) external databases. Lab 6 conventions: `.env.example`, the full one-command rule. To check: `docker` and `docker compose` in the environment.
