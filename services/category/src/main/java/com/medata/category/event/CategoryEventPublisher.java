@@ -4,6 +4,7 @@ import com.medata.category.dto.CategoryEventDto;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -15,8 +16,10 @@ public class CategoryEventPublisher {
 
   private final RestClient restClient;
 
-  public CategoryEventPublisher(@Value("${labtest.base-url}") String labTestBaseUrl) {
-    this.restClient = RestClient.builder().baseUrl(labTestBaseUrl).build();
+  public CategoryEventPublisher(
+      @LoadBalanced RestClient.Builder restClientBuilder,
+      @Value("${labtest.base-url}") String labTestBaseUrl) {
+    this.restClient = restClientBuilder.baseUrl(labTestBaseUrl).build();
   }
 
   public void publishCreated(UUID id, String name) {
@@ -28,7 +31,7 @@ public class CategoryEventPublisher {
           .body(new CategoryEventDto(name))
           .retrieve()
           .toBodilessEntity();
-    } catch (RestClientException e) {
+    } catch (RestClientException | IllegalStateException e) {
       log.warn("Could not publish category-created event for {}: {}", id, e.getMessage());
     }
   }
@@ -36,7 +39,7 @@ public class CategoryEventPublisher {
   public void publishDeleted(UUID id) {
     try {
       restClient.delete().uri("/internal/categories/{id}", id).retrieve().toBodilessEntity();
-    } catch (RestClientException e) {
+    } catch (RestClientException | IllegalStateException e) {
       log.warn("Could not publish category-deleted event for {}: {}", id, e.getMessage());
     }
   }

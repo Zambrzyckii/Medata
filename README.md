@@ -8,7 +8,7 @@
 
 ## Status
 
-Lab 6 complete — the whole system containerized: `docker compose up` starts the Angular frontend on NGINX (:4200), Spring Cloud Gateway (:8080) and the `category` + `lab-test` microservices, each with its own PostgreSQL database. Live status: [docs/en/STATE.md](docs/en/STATE.md).
+Course part complete (labs 1 to 7). `docker compose up` starts 9 containers, the Angular frontend on NGINX (:4200), Spring Cloud Gateway with `lb://` routes (:8080), the `category` service and two load-balanced `lab-test` instances, Eureka discovery (:8761), a central config server (:8888) and two PostgreSQL databases on named volumes with Flyway migrations. Live status: [docs/en/STATE.md](docs/en/STATE.md).
 
 ## Quick start
 
@@ -22,11 +22,14 @@ Then open `http://localhost:4200` (the app) or `http://localhost:8080/api/catego
 <summary>Development mode (hot reload, H2 in-memory, no Docker)</summary>
 
 ```bash
-cd services/category && ./mvnw spring-boot:run    # :8081
-cd services/lab-test && ./mvnw spring-boot:run    # :8082 (second terminal)
-cd services/gateway && ./mvnw spring-boot:run     # :8080 (third terminal) — the API entry
-cd web/catalog && npm start                       # :4200 (fourth terminal) — open this in the browser
+cd services/discovery && ./mvnw spring-boot:run   # :8761 — the registry, start it first
+cd services/category && ./mvnw spring-boot:run    # :8081 (second terminal)
+cd services/lab-test && ./mvnw spring-boot:run    # :8082 (third terminal)
+cd services/gateway && ./mvnw spring-boot:run     # :8080 (fourth terminal) — the API entry
+cd web/catalog && npm start                       # :4200 (fifth terminal) — open this in the browser
 ```
+
+The config service is optional in dev. Without it the services fall back to in-memory H2 and localhost defaults.
 
 </details>
 

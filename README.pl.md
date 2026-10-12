@@ -8,7 +8,7 @@
 
 ## Status
 
-Lab 6 ukończony — cały system skonteneryzowany: `docker compose up` stawia frontend Angulara na NGINX (:4200), Spring Cloud Gateway (:8080) oraz mikroserwisy `category` + `lab-test`, każdy z własną bazą PostgreSQL. Bieżący status: [docs/pl/STATE.md](docs/pl/STATE.md).
+Część kursowa ukończona (laby 1 do 7). `docker compose up` stawia 9 kontenerów, frontend Angulara na NGINX (:4200), Spring Cloud Gateway z trasami `lb://` (:8080), serwis `category` i dwie balansowane instancje `lab-test`, discovery Eureki (:8761), centralny config-serwer (:8888) oraz dwie bazy PostgreSQL na named volumes z migracjami Flywaya. Bieżący status: [docs/pl/STATE.md](docs/pl/STATE.md).
 
 ## Szybki start
 
@@ -22,11 +22,14 @@ Potem otwórz `http://localhost:4200` (aplikacja) albo `http://localhost:8080/ap
 <summary>Tryb deweloperski (hot reload, H2 in-memory, bez Dockera)</summary>
 
 ```bash
-cd services/category && ./mvnw spring-boot:run    # :8081
-cd services/lab-test && ./mvnw spring-boot:run    # :8082 (drugi terminal)
-cd services/gateway && ./mvnw spring-boot:run     # :8080 (trzeci terminal) — wejście API
-cd web/catalog && npm start                       # :4200 (czwarty terminal) — to otwórz w przeglądarce
+cd services/discovery && ./mvnw spring-boot:run   # :8761 — rejestr, startuje pierwszy
+cd services/category && ./mvnw spring-boot:run    # :8081 (drugi terminal)
+cd services/lab-test && ./mvnw spring-boot:run    # :8082 (trzeci terminal)
+cd services/gateway && ./mvnw spring-boot:run     # :8080 (czwarty terminal) — wejście API
+cd web/catalog && npm start                       # :4200 (piąty terminal) — to otwórz w przeglądarce
 ```
+
+Config-serwer jest w dev opcjonalny. Bez niego serwisy wracają do H2 in-memory i defaultów na localhost.
 
 </details>
 

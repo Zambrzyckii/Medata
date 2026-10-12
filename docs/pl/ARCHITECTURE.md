@@ -1,7 +1,7 @@
 # Medata — architektura
 
 > Wersja polska. Angielski odpowiednik 1:1: [../en/ARCHITECTURE.md](../en/ARCHITECTURE.md)
-> Stan na: lab 6 (konteneryzacja). Konwencja §6: zmiana architektury bez aktualizacji diagramu = zmiana nieukończona.
+> Stan na: lab 7 (discovery, load balancing, migracje, centralna konfiguracja). Konwencja §6: zmiana architektury bez aktualizacji diagramu = zmiana nieukończona.
 
 ## Widok kontenerów (tryb deweloperski)
 
@@ -25,26 +25,30 @@ flowchart LR
     PUB -. "zdarzenia PUT/DELETE /internal/categories/id" .-> LTC
 ```
 
-Każdy serwis ma **prywatną** bazę — nie istnieje wspólny schemat ani klucz obcy między serwisami. Spójność utrzymują zdarzenia REST i stałe UUID-y seedu. W trybie deweloperskim bazą jest H2 in-memory; pod Docker Compose ten sam jar rozmawia z PostgreSQL — przełącznikiem są wyłącznie zmienne środowiskowe (patrz niżej).
+Każdy serwis ma **prywatną** bazę — nie istnieje wspólny schemat ani klucz obcy między serwisami. Spójność utrzymują zdarzenia REST i stałe UUID-y seedu. W trybie deweloperskim bazą jest H2 in-memory; pod Docker Compose ten sam jar rozmawia z PostgreSQL, a przełącza to config-serwis plus zmienne środowiskowe (patrz niżej). Od labu 7 tryb deweloperski potrzebuje też discovery na :8761, bo gateway rozwiązuje cele `lb://` z rejestru.
 
-## Widok runtime (Docker Compose — lab 6)
+## Widok runtime (Docker Compose — lab 7)
 
 ```mermaid
 flowchart LR
     Browser((Przegladarka)) -->|":4200"| WEB
     Client((Klient HTTP - request.http, curl)) -->|":8080"| GW
     subgraph net [docker compose - jedna siec, DNS po nazwie uslugi]
-        WEB["web - NGINX<br>bundle Angulara + proxy /api -> GATEWAY_URL"]
-        WEB -->|"http://gateway:8080"| GW[gateway :8080]
-        GW -->|"http://category:8081"| CAT[category :8081]
-        GW -->|"http://lab-test:8082"| LT[lab-test :8082]
-        CAT -. "zdarzenia /internal/..." .-> LT
-        CAT --> CATDB[(category-db<br>PostgreSQL 18)]
-        LT --> LTDB[(lab-test-db<br>PostgreSQL 18)]
+        WEB["web - NGINX<br>bundle Angulara + proxy /api -> GATEWAY_URL"] --> GW
+        GW["gateway :8080"] -->|"lb://category"| CAT[category :8081]
+        GW -->|"lb://lab-test round-robin"| LT1["lab-test-1 :8082"]
+        GW -->|"lb://lab-test round-robin"| LT2["lab-test-2 :8082"]
+        CAT -. "zdarzenia /internal/... przez lb://lab-test" .-> LT1
+        CAT -.-> LT2
+        CAT --> CATDB[("category-db<br>PostgreSQL 18 + wolumen")]
+        LT1 --> LTDB[("lab-test-db<br>PostgreSQL 18 + wolumen")]
+        LT2 --> LTDB
+        DISC["discovery - Eureka :8761<br>kazda aplikacja rejestruje sie i pobiera"]
+        CFG["config - Config Server :8888<br>serwuje serwisom konfiguracje bazy i eureki"]
     end
 ```
 
-Porty na hoście publikują tylko `web` (:4200) i `gateway` (:8080); serwisy i obie bazy są osiągalne **wyłącznie wewnątrz sieci compose** — zasada z labu 4 „wszystko przez gateway" jest teraz egzekwowana przez samą sieć. Wszystkie między-kontenerowe adresy wstrzykuje `compose.yaml` jako zmienne środowiskowe (`GATEWAY_URL`, `CATEGORY_URL`, `LABTEST_URL`, `SPRING_DATASOURCE_*`, `LABTEST_BASE_URL`); obrazy nigdy nie hardkodują adresu i ten sam obraz pojechałby na dowolne środowisko. Spring czyta zmienne środowiskowe ponad `application.properties` (ta sama idea co `ConnectionStrings__X` w ASP.NET Core), NGINX dostaje je przez `envsubst` na szablonie konfiguracji, a trasy gatewaya używają placeholderów `${VAR:default}`, więc tryb deweloperski działa dalej bez żadnych zmiennych.
+Porty na hoście publikują `web` (:4200), `gateway` (:8080) oraz dwa infrastrukturalne dashboardy, `discovery` (:8761) i `config` (:8888). Serwisy biznesowe i obie bazy pozostają wewnątrz sieci. Adresowanie idzie teraz po nazwach logicznych. Aplikacje rejestrują się w Eurece pod swoim `spring.application.name`, gateway trasuje przez `lb://`, a serwis category publikuje zdarzenia na `http://lab-test`, oba rozwiązywane z lokalnej kopii rejestru z round-robinem po dwóch instancjach lab-test. Konfigurację bazy i eureki dla serwisów serwuje config-serwis (backend `native`), więc środowisko niesie tylko `CONFIG_URL`, `INSTANCE_ID` per instancja, poświadczenia baz, `DISCOVERY_URL` dla gatewaya i `GATEWAY_URL` dla NGINX-a. Named volumes utrzymują obie bazy między restartami, a Flyway migruje każdy schemat dokładnie raz, bo jego blokada w bazie serializuje dwie instancje lab-test.
 
 ## Przepływ zdarzeń (synchronizacja repliki)
 
@@ -76,9 +80,9 @@ Wysyłka jest **best-effort**: błąd sieci nie psuje operacji na kategorii (`tr
 
 | Kolejność | Predykat `Path=` | Cel |
 |---|---|---|
-| 0 | `/api/categories/*/tests` | lab-test :8082 |
-| 1 | `/api/categories/**` | category :8081 |
-| 2 | `/api/tests/**` | lab-test :8082 |
+| 0 | `/api/categories/*/tests` | `lb://lab-test` |
+| 1 | `/api/categories/**` | `lb://category` |
+| 2 | `/api/tests/**` | `lb://lab-test` |
 
 Kolejność od najszczegółowszej — catch-all kategorii przechwyciłby żądania o badania. `/internal/**` celowo **bez trasy**: API zdarzeń jest nieosiągalne z zewnątrz. Wykonywalne przykłady: `services/gateway/request.http` (wszystko przez :8080).
 
@@ -116,4 +120,4 @@ Prefiks oznacza bazę (`category` / `labtest`). Replika trzyma minimum potrzebne
 
 ## Plany
 
-Lab 7: discovery service, 2 instancje lab-test za load balancingiem gatewaya, wolumeny baz + migracje schematu, centralny config service — wszystko w Compose.
+Faza labowa kursu jest ukończona (laby 1 do 7). Dalej czeka faza FUTURE z WIZJI, zaczynając od zleceń i wyników z flagowaniem, rozwijana na gałęziach `feat/*`.

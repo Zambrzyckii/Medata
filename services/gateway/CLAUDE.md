@@ -4,7 +4,7 @@ The only public entry (**:8080**). Spring Cloud Gateway, **reactive flavor** (`s
 
 - Build & run: `./mvnw spotless:apply verify` / `./mvnw spring-boot:run` (own wrapper — no global Maven, no parent pom).
 - Route namespace: `spring.cloud.gateway.server.webflux.routes[n]`. Order matters — most specific first (`/api/categories/*/tests` → lab-test BEFORE `/api/categories/**` → category; `/api/tests/**` → lab-test). `/internal/**` must never get a route.
-- Route URIs are `${CATEGORY_URL:…}`/`${LABTEST_URL:…}` placeholders (lab 6): defaults keep dev mode on localhost, `compose.yaml` injects container DNS names. Container: multi-stage `Dockerfile`, `EXPOSE 8080`, published on the host (one of two public containers, next to `web`).
+- Route URIs are `lb://category` / `lb://lab-test` (lab 7): the registry supplies live instances, Spring Cloud LoadBalancer round-robins between them (two lab-test instances in compose). Registry address via `DISCOVERY_URL` env (dev fallback localhost:8761), instance id via `INSTANCE_ID`. Deliberately NOT a config-service client (task 5 says "services"). A 503 through the gateway means the registry knows no instance of the target. Container: multi-stage `Dockerfile`, `EXPOSE 8080`, published on the host.
 - Spring Cloud versions come from the `spring-cloud-dependencies` BOM import (ADR-002 pairs the train with the Boot line) — no versions on Cloud starters.
 - Diagnostics: a 404 through the gateway = no matching route; a 500 = route matched but the target service is down.
 - `request.http` here exercises the whole system via :8080. Docs: `docs/{pl,en}/README.md`, keep 1:1. Global rules: root `/CLAUDE.md`.

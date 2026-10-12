@@ -13,24 +13,26 @@
 ./mvnw spotless:apply verify    # format + pełny build
 ```
 
-W kontenerach serwis startuje z całosystemowego `compose.yaml` w roocie repo (`docker compose up --build`); tutejszy multi-stage `Dockerfile` buduje jar własnym wrapperem serwisu i uruchamia go na JRE Eclipse Temurin 25.
+W kontenerach serwis startuje z całosystemowego `compose.yaml` w roocie repo (`docker compose up --build`); tutejszy multi-stage `Dockerfile` buduje jar własnym wrapperem serwisu i uruchamia go na JRE Eclipse Temurin 25. Tryb deweloperski zakłada działające discovery (:8761). Bez niego aplikacja działa, ale loguje WARN-y rejestracji. Config-serwer jest w dev opcjonalny dzięki importowi `optional:`.
 
 ## Konfiguracja
 
-Defaulty w `src/main/resources/application.properties`; każdy klucz można nadpisać zmienną środowiskową (relaxed binding Springa) — i dokładnie to robi `compose.yaml`:
+Lokalne `application.properties` trzyma defaulty deweloperskie. Pod compose konfiguracja bazy i discovery przychodzi z **config-serwisu**, a środowisko niesie tylko to, czego wymaga zadanie 5 labu 7:
 
-| Właściwość | Default | Nadpisanie env (compose) |
+| Ustawienie | Default dev (plik lokalny) | Pod compose |
 |---|---|---|
-| `server.port` | `8081` | — (stały; `EXPOSE 8081`, niepublikowany na host) |
-| `spring.datasource.url` | `jdbc:h2:mem:category` | `SPRING_DATASOURCE_URL=jdbc:postgresql://category-db:5432/category` |
-| `spring.datasource.username` / `password` | `sa` / puste | `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` |
-| `labtest.base-url` | `http://localhost:8082` | `LABTEST_BASE_URL=http://lab-test:8082` |
+| `server.port` | `8081` | bez zmian (`EXPOSE 8081`, niepublikowany na host) |
+| `spring.config.import` | `optional:configserver:` z fallbackiem `http://localhost:8888` | `CONFIG_URL=http://config:8888` |
+| `spring.datasource.*` | H2 in-memory | PostgreSQL, serwowany przez config-serwis |
+| `eureka.client.service-url.defaultZone` | `http://localhost:8761/eureka` (fallback `DISCOVERY_URL`) | serwowany przez config-serwis |
+| `eureka.instance.instance-id` | `category-local` | `INSTANCE_ID=category-1` |
+| `labtest.base-url` | `http://lab-test` | ta sama wartość, nazwa logiczna rozwiązywana przez rejestr |
 
-Nigdzie nie ma `driver-class-name`: Boot wnioskuje sterownik z URL-a JDBC, więc przełączenie H2↔PostgreSQL to wyłącznie URL. `ddl-auto=create-drop` obowiązuje na obu silnikach (schemat + seed per start; migracje wejdą w labie 7).
+Pierwszeństwo idzie od env przez config-serwer po plik lokalny. Boot wnioskuje sterownik JDBC z URL-a. Właścicielem schematu jest Flyway (`db/migration/V1__init.sql` + `V2__seed.sql`) przy `ddl-auto=validate`, więc Hibernate schemat tylko sprawdza.
 
 ## Model danych
 
-Jedna tabela `test_categories` (`id` UUID, `name`, `requires_fasting`). Encja **nie ma** kolekcji badań — badania żyją w `lab-test`. Seed: 3 kategorie o stałych UUID-ach (`1111…`, `2222…`, `3333…`).
+Jedna tabela `test_categories` (`id` UUID, `name`, `requires_fasting`). Encja **nie ma** kolekcji badań — badania żyją w `lab-test`. Schemat i seed żyją w migracjach Flywaya, z 3 kategoriami seedu pod stałymi UUID-ami (`1111…`, `2222…`, `3333…`).
 
 ## API
 
@@ -46,5 +48,5 @@ Swagger UI: `http://localhost:8081/swagger-ui.html`.
 
 ## Decyzje
 
-- Zdarzenia publikuje **kontroler** (POST/DELETE), nie serwis — seed nie strzela zbędnymi zdarzeniami (lab-test seeduje się sam dzięki stałym UUID-om).
-- Wysyłka best-effort: `CategoryEventPublisher` łapie `RestClientException` i loguje WARN — serwis nie jest zakładnikiem repliki.
+- Zdarzenia publikuje **kontroler** (POST/DELETE), nie serwis. Seed to czysty SQL w migracji, więc nie strzela zdarzeniami (lab-test seeduje się sam dzięki stałym UUID-om).
+- Wysyłka pozostaje best-effort. `CategoryEventPublisher` używa `@LoadBalanced` `RestClient` (zwykły builder jest `@Primary`, więc transport Eureki nie jest przechwytywany) i łapie `RestClientException` oraz `IllegalStateException` (brak znanej instancji), logując WARN. Serwis nigdy nie jest zakładnikiem repliki.

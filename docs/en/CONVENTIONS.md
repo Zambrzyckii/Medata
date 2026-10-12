@@ -4,11 +4,11 @@
 
 ## 1. Work rhythm and commits
 
-- The git repository is driven exclusively by the user: the agent never runs `git commit`, `git checkout -b`, `git merge` or `git push` — it proposes ready-made commands and commit messages. Read operations (`status`, `diff`, `log`) are freely allowed.
+- Git is driven by the agent under the user's global rules (since 2026-10-12; labs 1 to 6 were committed by the user by hand). The agent commits after each finished and verified logical step, pushes when the task is done, always as `Zambrzyckii`, never with AI markers.
 - **Source code is written exclusively by the user, by hand.** The agent never creates or edits code/config files — it shows code in chat (in batches of one file, with explanations; the user is learning Java coming from .NET). Exception: documentation (`docs/`, README, CLAUDE.md) — the agent edits those directly as part of its standing maintenance duty.
-- **A commit exactly at the moment a lab is completed.** When all tasks of lab N work, the agent walks through the lab-boundary checklist (section 8) and clearly signals: **"LAB N COMPLETE — time to commit"**, providing the proposed command, the commit message and the `lab-N` tag. This way every stage can be shown to the instructor separately (tag checkout) instead of a finished lab-7 product.
+- **A commit exactly at the moment a lab is completed.** When all tasks of lab N work, the agent walks through the lab-boundary checklist (section 8), commits, tags `lab-N`, pushes and reports **"LAB N COMPLETE"**. This way every stage can be shown to the instructor separately (tag checkout) instead of a finished lab-7 product.
 - Between lab boundaries, commits happen at natural points (a coherent, working change) — the agent proposes the moment and the message.
-- Commit messages: plain, concise English descriptions of what changed (e.g. `Implement lab 2 JPA entities`). A deliberate user decision: no Conventional Commits prefixes.
+- Commit messages: one imperative English sentence of 3 to 8 words, capital first letter, no period, no body (e.g. `Add service discovery and central configuration`). Deliberate user decisions: no Conventional Commits prefixes and, since 2026-10-12, no `[LAB N]` prefixes, because the stage lives in the tag.
 - Stage tags: `lab-1` … `lab-7` (annotated: `git tag -a lab-1 -m "Lab 1: Java SE"`).
 - Branches: the CORE phase runs linearly on `main` (labs build on each other and the history must stay readable for the instructor); the FUTURE phase uses `feat/<name>` branches.
 
@@ -84,7 +84,7 @@ On completing lab N the agent walks through the list and only then signals:
 3. `STATE.md`, `CHANGELOG.md`, `DECISIONS.md` refreshed.
 4. `CLAUDE.md` (root and modules) up to date.
 5. Architecture diagrams up to date (from lab 2).
-6. The signal **"LAB N COMPLETE — time to commit"** + the proposed command, commit message and `lab-N` tag.
+6. The commit with the `lab-N` tag, pushed, and the **"LAB N COMPLETE"** report.
 
 ## 9. Definition of done (every task)
 

@@ -13,24 +13,26 @@ The source of truth for test categories (`TestCategory`). Exposes REST CRUD and,
 ./mvnw spotless:apply verify    # format + full build
 ```
 
-In containers the service runs from the whole-system `compose.yaml` in the repo root (`docker compose up --build`); the multi-stage `Dockerfile` here builds the jar with the service's own wrapper and runs it on an Eclipse Temurin 25 JRE.
+In containers the service runs from the whole-system `compose.yaml` in the repo root (`docker compose up --build`); the multi-stage `Dockerfile` here builds the jar with the service's own wrapper and runs it on an Eclipse Temurin 25 JRE. Development mode expects the discovery service to be running (:8761). Without it the app still works but keeps logging registration WARNs. The config service is optional in dev thanks to the `optional:` import.
 
 ## Configuration
 
-Defaults in `src/main/resources/application.properties`; every key can be overridden by an environment variable (Spring relaxed binding), which is exactly what `compose.yaml` does:
+The local `application.properties` holds development defaults. Under compose the database and discovery settings come from the **config service**, and the environment carries only what task 5 of lab 7 requires:
 
-| Property | Default | Env override (compose) |
+| Setting | Dev default (local file) | Under compose |
 |---|---|---|
-| `server.port` | `8081` | — (fixed; `EXPOSE 8081`, not published to the host) |
-| `spring.datasource.url` | `jdbc:h2:mem:category` | `SPRING_DATASOURCE_URL=jdbc:postgresql://category-db:5432/category` |
-| `spring.datasource.username` / `password` | `sa` / empty | `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` |
-| `labtest.base-url` | `http://localhost:8082` | `LABTEST_BASE_URL=http://lab-test:8082` |
+| `server.port` | `8081` | unchanged (`EXPOSE 8081`, not published to the host) |
+| `spring.config.import` | `optional:configserver:` with fallback `http://localhost:8888` | `CONFIG_URL=http://config:8888` |
+| `spring.datasource.*` | in-memory H2 | PostgreSQL, served by the config service |
+| `eureka.client.service-url.defaultZone` | `http://localhost:8761/eureka` (fallback of `DISCOVERY_URL`) | served by the config service |
+| `eureka.instance.instance-id` | `category-local` | `INSTANCE_ID=category-1` |
+| `labtest.base-url` | `http://lab-test` | same value, a logical name resolved through the registry |
 
-No `driver-class-name` anywhere: Boot infers the driver from the JDBC URL, so the H2↔PostgreSQL switch is nothing but the URL. `ddl-auto=create-drop` applies to both engines (schema + seed per start; migrations come in lab 7).
+Precedence runs env over config server over the local file. Boot infers the JDBC driver from the URL. The schema is owned by Flyway (`db/migration/V1__init.sql` + `V2__seed.sql`) with `ddl-auto=validate`, so Hibernate only checks it.
 
 ## Data model
 
-One table `test_categories` (`id` UUID, `name`, `requires_fasting`). The entity has **no** tests collection — tests live in `lab-test`. Seed: 3 categories with fixed UUIDs (`1111…`, `2222…`, `3333…`).
+One table `test_categories` (`id` UUID, `name`, `requires_fasting`). The entity has **no** tests collection — tests live in `lab-test`. Schema and seed live in the Flyway migrations, with 3 seed categories under the fixed UUIDs (`1111…`, `2222…`, `3333…`).
 
 ## API
 
@@ -46,5 +48,5 @@ Swagger UI: `http://localhost:8081/swagger-ui.html`.
 
 ## Decisions
 
-- Events are published by the **controller** (POST/DELETE), not the service — the seed fires no redundant events (lab-test seeds itself thanks to the fixed UUIDs).
-- Best-effort publishing: `CategoryEventPublisher` catches `RestClientException` and logs a WARN — the service is not held hostage by the replica.
+- Events are published by the **controller** (POST/DELETE), not the service. The seed is plain SQL in a migration, so it fires no events (lab-test seeds itself thanks to the fixed UUIDs).
+- Publishing stays best-effort. `CategoryEventPublisher` uses a `@LoadBalanced` `RestClient` (the plain builder is `@Primary`, so the Eureka transport is not intercepted) and catches `RestClientException` and `IllegalStateException` (no instance known), logging a WARN. The service is never held hostage by the replica.

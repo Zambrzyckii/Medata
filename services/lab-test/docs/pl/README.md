@@ -13,23 +13,25 @@ Właściciel badań laboratoryjnych (`LabTest`) wraz z **repliką** kategorii (`
 ./mvnw spotless:apply verify    # format + pełny build
 ```
 
-W kontenerach serwis startuje z całosystemowego `compose.yaml` w roocie repo (`docker compose up --build`); tutejszy multi-stage `Dockerfile` buduje jar własnym wrapperem serwisu i uruchamia go na JRE Eclipse Temurin 25.
+W kontenerach rootowy `compose.yaml` uruchamia **dwie równorzędne instancje** tego obrazu (`lab-test-1`, `lab-test-2`) na jednej wspólnej bazie, a gateway balansuje między nimi żądania. Tryb deweloperski uruchamia jedną instancję i zakłada działające discovery na :8761. Config-serwer jest w dev opcjonalny dzięki importowi `optional:`.
 
 ## Konfiguracja
 
-Defaulty w `src/main/resources/application.properties`; każdy klucz można nadpisać zmienną środowiskową (relaxed binding Springa) — i dokładnie to robi `compose.yaml`:
+Lokalne `application.properties` trzyma defaulty deweloperskie. Pod compose konfiguracja bazy i discovery przychodzi z **config-serwisu**. Obie instancje pytają go o tę samą konfigurację `lab-test` i właśnie to trzyma je na jednej bazie:
 
-| Właściwość | Default | Nadpisanie env (compose) |
+| Ustawienie | Default dev (plik lokalny) | Pod compose |
 |---|---|---|
-| `server.port` | `8082` | — (stały; `EXPOSE 8082`, niepublikowany na host) |
-| `spring.datasource.url` | `jdbc:h2:mem:labtest` | `SPRING_DATASOURCE_URL=jdbc:postgresql://lab-test-db:5432/labtest` |
-| `spring.datasource.username` / `password` | `sa` / puste | `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` |
+| `server.port` | `8082` | bez zmian (`EXPOSE 8082`, niepublikowany na host) |
+| `spring.config.import` | `optional:configserver:` z fallbackiem `http://localhost:8888` | `CONFIG_URL=http://config:8888` |
+| `spring.datasource.*` | H2 in-memory | PostgreSQL, serwowany przez config-serwis |
+| `eureka.client.service-url.defaultZone` | `http://localhost:8761/eureka` (fallback `DISCOVERY_URL`) | serwowany przez config-serwis |
+| `eureka.instance.instance-id` | `lab-test-local` | `INSTANCE_ID=lab-test-1` oraz `lab-test-2` |
 
-Nigdzie nie ma `driver-class-name`: Boot wnioskuje sterownik z URL-a JDBC. `ddl-auto=create-drop` obowiązuje na obu silnikach (schemat + seed per start; migracje wejdą w labie 7).
+Pierwszeństwo idzie od env przez config-serwer po plik lokalny. Właścicielem schematu jest Flyway (`db/migration/V1__init.sql` + `V2__seed.sql`) przy `ddl-auto=validate`. Na wspólnej bazie migracje aplikuje tylko jedna instancja, druga czeka na blokadzie Flywaya i odpuszcza.
 
 ## Model danych
 
-`test_categories` (replika: `id`, `name` — **bez** losowego domyślnego id, wartości przychodzą ze zdarzeń/seedu) `1 : N` `lab_tests` (`id`, `name`, `unit`, `reference_min`, `reference_max`, `price`, `category_id` FK). Kaskada `REMOVE` + `orphanRemoval`: usunięcie repliki kasuje jej badania. Seed: repliki pod stałymi UUID-ami (`1111…`, `2222…`, `3333…`) + 6 badań.
+`test_categories` (replika: `id`, `name` — **bez** losowego domyślnego id, wartości przychodzą ze zdarzeń/seedu) `1 : N` `lab_tests` (`id`, `name`, `unit`, `reference_min`, `reference_max`, `price`, `category_id` FK). Kaskada `REMOVE` + `orphanRemoval`: usunięcie repliki kasuje jej badania. Schemat i seed żyją w migracjach Flywaya. Repliki zachowują stałe UUID-y (`1111…`, `2222…`, `3333…`), a 6 badań seedu ma stałe idki `aaaaaaaa-…-000N`, więc ponowny seed nigdy ich nie zduplikuje.
 
 ## API
 
